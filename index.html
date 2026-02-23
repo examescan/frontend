@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
     <title>ExamScan - Scanner Médico</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,6 +21,7 @@
             --text-main: #FFFFFF;
             --text-muted: #9CA3AF;
             --anim-speed: 10s;
+            color-scheme: dark;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -27,10 +29,10 @@
         html, body {
             overflow-x: hidden;
             width: 100%;
+            background-color: var(--bg-color);
         }
 
         body {
-            background-color: var(--bg-color);
             color: var(--text-main);
             background: linear-gradient(135deg, #050505 0%, #080a0f 50%, #050505 100%);
             position: relative;
@@ -77,11 +79,11 @@
             font-size: 1.1rem;
             letter-spacing: -0.02em;
             color: #fff;
-            opacity: 0.4;
+            opacity: 0.9;
             transition: opacity 0.3s;
         }
 
-        .nav-logo:hover { opacity: 0.8; }
+        .nav-logo:hover { opacity: 1; }
 
         .login-link {
             color: var(--text-muted);
@@ -121,20 +123,20 @@
             -webkit-text-fill-color: transparent;
             animation: shine 4s linear infinite;
             margin: 0;
-            opacity: 0.6;
-            filter: drop-shadow(0 0 40px rgba(59, 130, 246, 0.15));
+            opacity: 1;
+            filter: drop-shadow(0 0 40px rgba(59, 130, 246, 0.25));
             line-height: 1;
             z-index: 2;
         }
 
         p.subhead {
             font-size: 1.6rem;
-            color: var(--text-muted);
+            color: #E2E8F0;
             font-weight: 300;
             max-width: 800px;
             letter-spacing: 0.1em;
             line-height: 1.6;
-            opacity: 0.7;
+            opacity: 0.9;
             z-index: 10;
             margin: 0;
         }
@@ -149,9 +151,9 @@
             justify-content: center;
             align-items: center;
             min-height: 70px;
-            border-top: 1px solid rgba(255, 255, 255, 0.02);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
-            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.3);
         }
 
         .social-proof-content {
@@ -159,7 +161,7 @@
             z-index: 2;
             font-size: 1.2rem;
             font-weight: 500;
-            color: var(--text-muted);
+            color: #CBD5E1;
         }
 
         .counter-glow {
@@ -167,6 +169,7 @@
             font-variant-numeric: tabular-nums;
             display: inline-block;
             min-width: 65px;
+            color: #fff;
         }
 
         .counter-glow.finished {
@@ -215,13 +218,13 @@
             box-shadow: 0 0 60px 3px var(--accent);
             animation: scan-bounce 5s infinite ease-in-out;
             z-index: 1;
-            opacity: 0.4;
+            opacity: 0.6;
             pointer-events: none;
         }
 
         @keyframes scan-bounce {
-            0%, 100% { transform: translateY(-70px); opacity: 0.2; }
-            50% { transform: translateY(70px); opacity: 0.6; }
+            0%, 100% { transform: translateY(-70px); opacity: 0.3; }
+            50% { transform: translateY(70px); opacity: 0.8; }
         }
 
         /* Padronização Elegante dos Títulos de Seção */
@@ -233,6 +236,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: -0.03em;
+            opacity: 1;
         }
 
         .features-slideshow {
@@ -293,7 +297,7 @@
             text-transform: uppercase;
         }
 
-        .slide-desc { font-size: 1.1rem; color: var(--text-muted); }
+        .slide-desc { font-size: 1.1rem; color: #94A3B8; }
 
         .btn-main {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
@@ -322,7 +326,7 @@
 
         .copy-snippet {
             font-family: 'Courier New', monospace;
-            background: rgba(0,0,0,0.4);
+            background: rgba(0,0,0,0.6);
             padding: 10px;
             border-radius: 8px;
             font-size: 0.85rem;
@@ -367,9 +371,9 @@
         .cm-layout { display: flex; align-items: center; justify-content: space-between; max-width: 950px; margin: 0 auto; }
         .cm-col { width: 160px; display: flex; flex-direction: column; align-items: center; text-align: center; }
         .cm-col h4 { margin-top: 18px; font-size: 0.9rem; color: #fff; font-weight: 600; letter-spacing: 0.02em; }
-        .cm-col p { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+        .cm-col p { font-size: 0.75rem; color: #94A3B8; margin-top: 4px; }
         
-        .cm-icon-wrapper { position: relative; width: 70px; height: 70px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: 18px; display: flex; align-items: center; justify-content: center; }
+        .cm-icon-wrapper { position: relative; width: 70px; height: 70px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--glass-border); border-radius: 18px; display: flex; align-items: center; justify-content: center; }
 
         .continuous-motion-section.is-active .cm-scan-laser { animation: phoneScanGPU var(--anim-speed) infinite; }
         .continuous-motion-section.is-active .cm-ai-ring { animation: aiActionGPU var(--anim-speed) infinite; }
@@ -391,7 +395,7 @@
         .cm-emr-line { height: 3px; background: var(--primary); border-radius: 2px; width: 100%; margin: 4px 0; transform-origin: left; will-change: transform; transform: scaleX(0); }
         @keyframes emrFillGPU { 0%, 89% { transform: scaleX(0); opacity: 0.2; } 95%, 100% { transform: scaleX(1); opacity: 1; } }
 
-        .cm-connector { flex: 1; height: 1px; background: rgba(255, 255, 255, 0.05); position: relative; }
+        .cm-connector { flex: 1; height: 1px; background: rgba(255, 255, 255, 0.1); position: relative; }
         .cm-packet { position: absolute; width: 18px; height: 18px; background: #050505; border: 1px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary); top: -9px; left: 0; opacity: 0; will-change: transform, opacity; }
 
         @keyframes travel1GPU { 0%, 19%, 31%, 100% { transform: translateX(0); opacity: 0; } 22% { opacity: 1; } 30% { transform: translateX(120%); opacity: 0; } }
@@ -401,9 +405,9 @@
         .bento-section { padding: 40px 0 100px; }
         .bento-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
         .bento-card { padding: 30px; transition: all 0.3s; border: 1px solid var(--glass-border); }
-        .bento-card:hover { background: rgba(255,255,255,0.06); transform: translateY(-5px); border-color: var(--primary); }
+        .bento-card:hover { background: rgba(255,255,255,0.08); transform: translateY(-5px); border-color: var(--primary); }
         .bento-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 8px; color: #fff; letter-spacing: 0.05em; }
-        .bento-text { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; }
+        .bento-text { font-size: 0.85rem; color: #94A3B8; line-height: 1.5; }
         .icon-box { margin-bottom: 20px; color: var(--primary); }
 
         @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
@@ -426,7 +430,7 @@
             transform: translate(-50%, -50%);
             width: 600px;
             height: 600px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.06) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
             pointer-events: none;
         }
 
@@ -438,9 +442,9 @@
             font-weight: 600;
             letter-spacing: 0.15em;
             text-transform: uppercase;
-            color: var(--primary);
-            border: 1px solid rgba(59, 130, 246, 0.25);
-            background: rgba(59, 130, 246, 0.08);
+            color: #60A5FA;
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            background: rgba(59, 130, 246, 0.12);
             padding: 6px 14px;
             border-radius: 100px;
             margin-bottom: 28px;
@@ -470,7 +474,7 @@
         }
 
         .explainer-headline .hl-muted {
-            background: linear-gradient(to right, #ffffff 0%, #4b5563 100%);
+            background: linear-gradient(to right, #ffffff 0%, #94A3B8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -499,7 +503,7 @@
 
         .explainer-para {
             font-size: 1.05rem;
-            color: var(--text-muted);
+            color: #CBD5E1;
             line-height: 1.75;
         }
 
@@ -537,7 +541,7 @@
 
         .explainer-stat-label {
             font-size: 0.78rem;
-            color: var(--text-muted);
+            color: #94A3B8;
             letter-spacing: 0.05em;
             text-transform: uppercase;
         }
@@ -548,8 +552,8 @@
         }
 
         .exv-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.07);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
             overflow: hidden;
             position: relative;
@@ -559,13 +563,13 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(59,130,246,0.04) 0%, transparent 60%);
+            background: linear-gradient(135deg, rgba(59,130,246,0.06) 0%, transparent 60%);
             pointer-events: none;
         }
 
         .exv-header {
             padding: 14px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -578,7 +582,7 @@
 
         .exv-header-label {
             font-size: 0.72rem;
-            color: var(--text-muted);
+            color: #94A3B8;
             letter-spacing: 0.05em;
             text-transform: uppercase;
             margin-left: 4px;
@@ -590,7 +594,7 @@
 
         /* Lado ANTES */
         .exv-before {
-            border-color: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.08);
             margin-bottom: 14px;
         }
 
@@ -602,8 +606,8 @@
                     0deg,
                     transparent,
                     transparent 18px,
-                    rgba(255,255,255,0.03) 18px,
-                    rgba(255,255,255,0.03) 19px
+                    rgba(255,255,255,0.05) 18px,
+                    rgba(255,255,255,0.05) 19px
                 );
             border-radius: 8px;
             position: relative;
@@ -618,7 +622,7 @@
             position: absolute;
             left: 0; right: 0;
             height: 2px;
-            background: linear-gradient(90deg, transparent, rgba(59,130,246,0.7), transparent);
+            background: linear-gradient(90deg, transparent, rgba(59,130,246,0.9), transparent);
             animation: scan-sweep 3s ease-in-out infinite;
         }
 
@@ -631,7 +635,7 @@
 
         .exv-scanned-text {
             font-size: 0.65rem;
-            color: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.3);
             font-family: 'Courier New', monospace;
             line-height: 2.1;
             letter-spacing: 0.02em;
@@ -651,31 +655,31 @@
         .exv-arrow-line {
             flex: 1;
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(59,130,246,0.3), transparent);
+            background: linear-gradient(90deg, transparent, rgba(59,130,246,0.4), transparent);
         }
 
         .exv-arrow-badge {
             display: flex;
             align-items: center;
             gap: 6px;
-            background: rgba(59,130,246,0.1);
-            border: 1px solid rgba(59,130,246,0.2);
+            background: rgba(59,130,246,0.15);
+            border: 1px solid rgba(59,130,246,0.3);
             border-radius: 100px;
             padding: 5px 12px;
             font-size: 0.7rem;
             font-weight: 600;
-            color: var(--primary);
+            color: #60A5FA;
             white-space: nowrap;
         }
 
         /* Lado DEPOIS */
         .exv-after {
-            border-color: rgba(59,130,246,0.15);
+            border-color: rgba(59,130,246,0.2);
         }
 
         .exv-after .exv-header {
-            border-bottom-color: rgba(59,130,246,0.1);
-            background: rgba(59,130,246,0.04);
+            border-bottom-color: rgba(59,130,246,0.15);
+            background: rgba(59,130,246,0.06);
         }
 
         .exv-result-row {
@@ -683,14 +687,14 @@
             justify-content: space-between;
             align-items: center;
             padding: 7px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
             font-size: 0.8rem;
         }
 
         .exv-result-row:last-child { border-bottom: none; }
 
         .exv-result-key {
-            color: var(--text-muted);
+            color: #94A3B8;
         }
 
         .exv-result-val {
@@ -706,8 +710,8 @@
         .exv-copy-btn {
             margin-top: 14px;
             width: 100%;
-            background: rgba(59,130,246,0.1);
-            border: 1px solid rgba(59,130,246,0.2);
+            background: rgba(59,130,246,0.15);
+            border: 1px solid rgba(59,130,246,0.3);
             border-radius: 10px;
             padding: 10px;
             display: flex;
@@ -716,7 +720,7 @@
             gap: 8px;
             font-size: 0.8rem;
             font-weight: 600;
-            color: var(--primary);
+            color: #60A5FA;
             cursor: pointer;
             transition: all 0.25s;
             animation: copy-pulse 3s ease-in-out infinite;
@@ -724,7 +728,7 @@
 
         @keyframes copy-pulse {
             0%, 100% { box-shadow: none; }
-            50% { box-shadow: 0 0 20px rgba(59,130,246,0.2); border-color: rgba(59,130,246,0.4); }
+            50% { box-shadow: 0 0 20px rgba(59,130,246,0.2); border-color: rgba(59,130,246,0.5); }
         }
 
         .explainer-badge-row {
@@ -738,22 +742,22 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.07);
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
             border-radius: 100px;
             padding: 5px 12px;
             font-size: 0.75rem;
-            color: var(--text-muted);
+            color: #CBD5E1;
             transition: all 0.3s;
         }
 
         .explainer-badge:hover {
-            border-color: rgba(59,130,246,0.3);
+            border-color: rgba(59,130,246,0.4);
             color: #fff;
-            background: rgba(59,130,246,0.06);
+            background: rgba(59,130,246,0.1);
         }
 
-        .explainer-badge i { color: var(--primary); }
+        .explainer-badge i { color: #60A5FA; }
 
         /* ==============================
            NOVA SEÇÃO: SEGURANÇA SLIM
@@ -761,8 +765,8 @@
         .trust-banner {
             margin: 20px auto 40px;
             padding: 24px 40px;
-            background: rgba(59, 130, 246, 0.03);
-            border: 1px solid rgba(59, 130, 246, 0.1);
+            background: rgba(59, 130, 246, 0.05);
+            border: 1px solid rgba(59, 130, 246, 0.15);
             border-radius: 16px;
             display: flex;
             align-items: center;
@@ -776,7 +780,7 @@
             position: absolute;
             inset: 0;
             border-radius: 16px;
-            box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.05);
+            box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.08);
             pointer-events: none;
         }
 
@@ -788,24 +792,24 @@
         }
 
         .trust-icon {
-            background: rgba(59, 130, 246, 0.1);
+            background: rgba(59, 130, 246, 0.15);
             padding: 10px;
             border-radius: 10px;
-            color: var(--primary);
+            color: #60A5FA;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .trust-text h4 {
-            color: #e2e8f0;
+            color: #F8FAFC;
             font-size: 0.9rem;
             font-weight: 600;
             margin-bottom: 4px;
         }
 
         .trust-text p {
-            color: var(--text-muted);
+            color: #94A3B8;
             font-size: 0.8rem;
             line-height: 1.4;
         }
@@ -816,7 +820,7 @@
             .explainer-stat-row { gap: 20px; }
             
             h1.main-title { font-size: 4rem; }
-            p.subhead { font-size: 1rem; padding: 0 10px; }
+            p.subhead { font-size: 1.1rem; padding: 0 10px; }
             .hero { height: auto; min-height: 500px; padding: 60px 0; gap: 40px; }
             .bento-grid { grid-template-columns: 1fr; }
             .cm-layout { flex-direction: column; gap: 25px; }
@@ -860,8 +864,6 @@
                 Usado por mais de <span class="counter-glow" id="socialCounter">0000</span> profissionais da saúde
             </div>
         </section>
-
-        
 
         <section class="explainer-section" id="what-is-section">
             <div class="explainer-eyebrow">
@@ -949,10 +951,10 @@
 
                     <div class="exv-card exv-after">
                         <div class="exv-header">
-                            <div class="exv-dot" style="background:rgba(59,130,246,0.4);"></div>
+                            <div class="exv-dot" style="background:rgba(59,130,246,0.5);"></div>
+                            <div class="exv-dot" style="background:rgba(59,130,246,0.3);"></div>
                             <div class="exv-dot" style="background:rgba(59,130,246,0.2);"></div>
-                            <div class="exv-dot" style="background:rgba(59,130,246,0.1);"></div>
-                            <span class="exv-header-label" style="color:var(--primary);">texto estruturado · pronto para colar</span>
+                            <span class="exv-header-label" style="color:#60A5FA;">texto estruturado · pronto para colar</span>
                         </div>
                         <div class="exv-body">
                             <div class="exv-result-row">
@@ -989,7 +991,7 @@
                     
                     <div class="cm-col">
                         <div class="cm-icon-wrapper">
-                            <i data-lucide="smartphone" style="color:#fff; opacity:0.5"></i>
+                            <i data-lucide="smartphone" style="color:#fff; opacity:0.8"></i>
                             <div class="cm-scan-laser"></div>
                         </div>
                         <h4>1. Capture</h4>
@@ -1000,7 +1002,7 @@
 
                     <div class="cm-col">
                         <div class="cm-icon-wrapper">
-                            <i data-lucide="brain-circuit" style="color:#fff; opacity:0.5"></i>
+                            <i data-lucide="brain-circuit" style="color:#fff; opacity:0.8"></i>
                             <div class="cm-ai-ring"></div>
                         </div>
                         <h4>2. Transcrição</h4>
@@ -1011,7 +1013,7 @@
 
                     <div class="cm-col">
                         <div class="cm-icon-wrapper">
-                            <i data-lucide="qr-code" style="color:#fff; opacity:0.5"></i>
+                            <i data-lucide="qr-code" style="color:#fff; opacity:0.8"></i>
                             <div class="cm-qr-scanner"></div>
                         </div>
                         <h4>3. Conecte o PC</h4>
@@ -1022,7 +1024,7 @@
 
                     <div class="cm-col">
                         <div class="cm-icon-wrapper">
-                            <i data-lucide="monitor" style="color:#fff; opacity:0.5"></i>
+                            <i data-lucide="monitor" style="color:#fff; opacity:0.8"></i>
                             <div style="position:absolute; width:26px; top:35px">
                                 <div class="cm-emr-line"></div>
                                 <div class="cm-emr-line" style="animation-delay:0.1s"></div>
@@ -1075,7 +1077,7 @@
                 <div class="billboard-slide active">
                     <div class="demo-content" style="display: flex; gap: 40px; align-items: center;">
                         <div style="text-align: center;">
-                            <i data-lucide="file-text" size="48" color="#94A3B8" class="icon-alive"></i>
+                            <i data-lucide="file-text" size="48" color="#CBD5E1" class="icon-alive"></i>
                             <p style="font-size: 0.75rem; margin-top: 10px; color: #94A3B8;">Exame em papel</p>
                         </div>
                         <i data-lucide="arrow-right-left" color="#3B82F6"></i>
@@ -1128,12 +1130,6 @@
                 </div>
             </div>
         </section>
-
-
-
-
-
-
 
         <section class="bento-section">
             <div class="bento-grid">
