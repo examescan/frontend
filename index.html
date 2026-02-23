@@ -78,12 +78,11 @@
             font-weight: 700;
             font-size: 1.1rem;
             letter-spacing: -0.02em;
-            color: #fff;
-            opacity: 0.9;
-            transition: opacity 0.3s;
+            color: var(--text-muted); /* Ajustado para o mesmo tom do botão de login */
+            transition: color 0.3s;
         }
 
-        .nav-logo:hover { opacity: 1; }
+        .nav-logo:hover { color: #fff; }
 
         .login-link {
             color: var(--text-muted);
@@ -117,7 +116,7 @@
             font-size: 9rem;
             font-weight: 800;
             letter-spacing: -0.05em;
-            color: #ffffff; /* Fallback sólido */
+            color: #ffffff;
             background: linear-gradient(to right, #ffffff 20%, #3B82F6 50%, #ffffff 80%);
             background-size: 200% auto;
             -webkit-background-clip: text;
@@ -173,7 +172,7 @@
         }
 
         .counter-glow.finished {
-            color: #ffffff; /* Fallback sólido */
+            color: #ffffff;
             background: linear-gradient(to right, #ffffff 20%, #3B82F6 50%, #ffffff 80%);
             background-size: 200% auto;
             -webkit-background-clip: text;
@@ -231,7 +230,7 @@
             font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 40px;
-            color: #ffffff; /* Fallback */
+            color: #ffffff;
             background: linear-gradient(135deg, #ffffff 0%, #9CA3AF 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -469,14 +468,14 @@
         }
 
         .explainer-headline .hl-muted {
-            color: #ffffff; /* Fallback */
+            color: #ffffff;
             background: linear-gradient(to right, #ffffff 0%, #94A3B8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .explainer-headline .hl-blue {
-            color: #3B82F6; /* Fallback */
+            color: #3B82F6;
             background: linear-gradient(135deg, #60a5fa 0%, #3B82F6 50%, #93c5fd 100%);
             background-size: 200% auto;
             -webkit-background-clip: text;
