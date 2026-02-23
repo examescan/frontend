@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ExameScan | Scanner Médico Inteligente</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#3B82F6',
+                        dark: '#050505',
+                        glass: 'rgba(255, 255, 255, 0.03)',
+                        'glass-border': 'rgba(255, 255, 255, 0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --bg-color: #050505;
+            --primary: #3B82F6;
+            --text-main: #FFFFFF;
+            --text-muted: #9CA3AF;
+        }
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #050505 0%, #080a0f 50%, #050505 100%);
+            position: relative;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 30%),
+                        radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 40%);
+            z-index: -1;
+            animation: moveGradient 15s ease infinite alternate;
+            pointer-events: none;
+        }
+
+        @keyframes moveGradient {
+            0% { transform: scale(1) translate(0, 0); }
+            50% { transform: scale(1.2) translate(2%, 5%); }
+            100% { transform: scale(1) translate(-1%, -2%); }
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            color: white;
+        }
+        .glass-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-modal {
+            background: rgba(10, 10, 12, 0.85);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        input {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
+        }
+        input:focus {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        #toast-container { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; flex-direction: column; gap: 8px; }
+        .toast { 
+            pointer-events: auto; min-width: 320px; max-width: 480px; padding: 16px 24px; border-radius: 18px; 
+            background: #1e1e24; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex; align-items: center; justify-content: center; 
+            opacity: 0; transform: translateY(-20px) scale(0.95); 
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+            font-size: 14px; font-weight: 600; color: white;
+        }
+        .toast.show { opacity: 1; transform: translateY(0) scale(1); }
+        .toast-success { color: #34d399; border-left: 4px solid #10b981; }
+        .toast-error { color: #f87171; border-left: 4px solid #ef4444; }
+
+        .loader {
+            border: 2px solid rgba(255,255,255,0.1); border-top: 2px solid var(--primary);
+            border-radius: 50%; width: 18px; height: 18px; animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        #camera-wrapper { border-radius: 32px; overflow: hidden; background: #000; position: relative; aspect-ratio: 3/4; box-shadow: 0 0 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+        #camera-video { width: 100%; height: 100%; object-fit: cover; }
+        
+        .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 12px; }
+        .preview-item { position: relative; aspect-ratio: 1; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); }
+        .preview-item img { width: 100%; height: 100%; object-fit: cover; }
+        .remove-img { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.8); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); }
+
+        /* --- MARKDOWN STYLING (OpenAI/ChatGPT Style) --- */
+        #analysis-content { 
+            line-height: 1.8; 
+            color: #e2e8f0; 
+            font-size: 0.95rem;
+        }
+        
+        /* Headers */
+        #analysis-content h1, 
+        #analysis-content h2, 
+        #analysis-content h3, 
+        #analysis-content h4, 
+        #analysis-content h5, 
+        #analysis-content h6 { 
+            font-weight: 700; 
+            color: #fff; 
+            margin-top: 2rem; 
+            margin-bottom: 1rem; 
+            letter-spacing: -0.02em; 
+            line-height: 1.3;
+        }
+        #analysis-content h1 { font-size: 1.75rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; margin-top: 1rem; }
+        #analysis-content h2 { font-size: 1.5rem; }
+        #analysis-content h3 { font-size: 1.25rem; }
+        
+        /* Text & Spacing */
+        #analysis-content p { margin-bottom: 1.25rem; }
+        #analysis-content strong { color: #60a5fa; font-weight: 700; background: rgba(59, 130, 246, 0.1); padding: 0 4px; border-radius: 4px; }
+        #analysis-content em { font-style: italic; color: #94a3b8; }
+        
+        /* Lists */
+        #analysis-content ul, #analysis-content ol { margin-bottom: 1.5rem; padding-left: 1.5rem; color: #cbd5e1; }
+        #analysis-content ul { list-style-type: disc; }
+        #analysis-content ol { list-style-type: decimal; }
+        #analysis-content li { margin-bottom: 0.5rem; padding-left: 0.25rem; }
+        #analysis-content li::marker { color: #60a5fa; }
+        
+        /* Tables */
+        #analysis-content table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 1.5rem 0; 
+            font-size: 0.9em; 
+            background: rgba(255,255,255,0.02);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        #analysis-content th { 
+            background: rgba(59, 130, 246, 0.15); 
+            color: #fff; 
+            padding: 12px 16px; 
+            text-align: left; 
+            font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        #analysis-content td { 
+            padding: 12px 16px; 
+            border: 1px solid rgba(255,255,255,0.08); 
+            color: #cbd5e1;
+            vertical-align: top;
+        }
+        #analysis-content tr:nth-child(even) { background: rgba(255,255,255,0.01); }
+
+        /* Code Blocks & Pre */
+        #analysis-content code {
+            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+            font-size: 0.85em;
+            background: rgba(255,255,255,0.1);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            color: #e2e8f0;
+        }
+        #analysis-content pre {
+            background: #1e1e24;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        #analysis-content pre code {
+            background: transparent;
+            padding: 0;
+            color: #cbd5e1;
+        }
+
+        /* Blockquotes */
+        #analysis-content blockquote {
+            border-left: 4px solid #3b82f6;
+            padding: 0.5rem 0 0.5rem 1rem;
+            margin: 0 0 1.5rem 0;
+            color: #94a3b8;
+            background: linear-gradient(to right, rgba(59,130,246,0.05), transparent);
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* Horizontal Rule */
+        #analysis-content hr {
+            border: 0;
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+            margin: 2rem 0;
+        }
+
+        .switch-toggle { 
+            position: relative; width: 240px; height: 48px; background: rgba(255,255,255,0.05); 
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px; padding: 4px; display: flex; align-items: center; cursor: pointer; 
+        }
+        .switch-toggle .slider { 
+            position: absolute; width: 114px; height: 40px; background: rgba(255,255,255,0.1); 
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px; transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+        }
+        .switch-toggle.toggled .slider { transform: translateX(118px); }
+        .switch-toggle span { position: relative; flex: 1; text-align: center; font-size: 11px; font-weight: 700; text-transform: uppercase; z-index: 1; color: #64748b; transition: color 0.3s; }
+        .switch-toggle span.active { color: #fff; }
+
+        .hidden-scale { opacity: 0; transform: scale(0.95) translateY(-10px); pointer-events: none; }
+        .modal { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        
+        .shimmer {
+            background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        @keyframes shine { to { background-position: 200% center; } }
+        .glowing-brand {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            background: linear-gradient(to right, #fff, #3B82F6, #fff);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 3s linear infinite;
+        }
+
+        .btn-glow { box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
+        .btn-glow:hover { box-shadow: 0 0 25px rgba(59, 130, 246, 0.5); }
+        
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        .title-glass-frame {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            padding: 8px 20px 8px 12px;
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .title-icon-box {
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3B82F6;
+            flex-shrink: 0;
+        }
+
+        /* Styles para o Visualizador de JSON/Interpretação */
+        .exam-section { margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); border-radius: 16px; overflow: hidden; }
+        .exam-header { background: rgba(255,255,255,0.05); padding: 12px 16px; font-weight: 700; font-size: 13px; text-transform: uppercase; color: #fff; letter-spacing: 0.05em; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        
+        .result-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .result-table th { text-align: left; padding: 12px 16px; color: #64748b; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .result-table td { padding: 14px 16px; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
+        .result-table tr:last-child td { border-bottom: none; }
+        
+        .status-badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .status-altered { background: rgba(248, 113, 113, 0.15); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.3); }
+        .status-normal { background: rgba(52, 211, 153, 0.1); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.2); }
+        .status-neutral { background: rgba(148, 163, 184, 0.1); color: #94a3b8; }
+
+        .report-box { padding: 16px; border-left: 3px solid; margin: 0; background: rgba(0,0,0,0.2); }
+        .report-high { border-color: #f87171; background: rgba(248, 113, 113, 0.05); }
+        .report-medium { border-color: #60a5fa; background: rgba(59, 130, 246, 0.05); }
+        .report-neutral { border-color: #475569; }
+    
+        /* === CREDITS EXHAUSTED STATE === */
+        @keyframes credits-pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0), 0 0 10px rgba(59, 130, 246, 0.3);
+                border-color: rgba(59, 130, 246, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.15), 0 0 28px rgba(59, 130, 246, 0.6);
+                border-color: rgba(59, 130, 246, 0.9);
+            }
+        }
+
+        .credits-glow-btn {
+            animation: credits-pulse-glow 1.8s ease-in-out infinite !important;
+            border-color: rgba(59, 130, 246, 0.6) !important;
+            color: #60a5fa !important;
+        }
+
+        /* Persistent banner */
+        .credits-banner-hidden {
+            position: fixed;
+            bottom: -120px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            width: calc(100% - 32px);
+            max-width: 560px;
+            transition: bottom 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+
+        .credits-banner-visible {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            width: calc(100% - 32px);
+            max-width: 560px;
+            transition: bottom 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: auto;
+        }
+
+        .credits-banner-inner {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            background: rgba(10, 10, 18, 0.92);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.2), 0 10px 40px rgba(0, 0, 0, 0.6);
+            animation: credits-pulse-glow 2.4s ease-in-out infinite;
+        }
+
+        .credits-banner-icon {
+            flex-shrink: 0;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #60a5fa;
+        }
+
+        .credits-banner-text {
+            flex: 1;
+            font-size: 12px;
+            font-weight: 600;
+            color: #cbd5e1;
+            line-height: 1.5;
+        }
+
+        .credits-banner-cta {
+            flex-shrink: 0;
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+            box-shadow: 0 0 14px rgba(59, 130, 246, 0.4);
+        }
+
+        .credits-banner-cta:hover {
+            background: #3b82f6;
+            transform: scale(1.05);
+        }
+
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="toast-container"></div>
+
+    <!-- Persistent credits-exhausted banner -->
+    <div id="credits-banner" class="credits-banner-hidden" aria-live="polite">
+        <div class="credits-banner-inner">
+            <div class="credits-banner-icon">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+            </div>
+            <p class="credits-banner-text">Seus créditos acabaram por enquanto, mas você pode conferir um plano que atenda sua demanda 🚀</p>
+            <button class="credits-banner-cta" onclick="openPlansModal()">Ver planos</button>
+        </div>
+    </div>
+
+    <div id="auth-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="glass-modal p-8 md:p-10 rounded-[2rem] w-full max-w-md text-center border border-white/10 shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-1 bg-blue-500 blur-[20px]"></div>
+            <h2 class="glowing-brand mb-2" style="font-size: clamp(1.8rem, 4vw, 2.2rem);">ExameScan</h2>
+            <p class="text-gray-400 text-xs font-medium mb-8">Exames do papel direto para o prontuário eletrônico</p>
+            <div id="login-form" class="space-y-4 text-left">
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">E-mail</label>
+                    <input type="email" id="email" class="w-full p-3.5 rounded-xl outline-none text-sm font-medium transition-all placeholder-gray-600" placeholder="nome@email.com">
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Senha</label>
+                    <input type="password" id="password" class="w-full p-3.5 rounded-xl outline-none text-sm font-medium transition-all placeholder-gray-600" placeholder="••••••••">
+                </div>
+                <div id="confirm-password-field" class="space-y-1.5 hidden">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Confirmar Senha</label>
+                    <input type="password" id="confirm-password" class="w-full p-3.5 rounded-xl outline-none text-sm font-medium transition-all placeholder-gray-600" placeholder="••••••••">
+                </div>
+                <button onclick="handleAuth()" id="auth-submit-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white p-4 rounded-xl font-bold shadow-lg shadow-blue-900/20 active:scale-[0.98] transition-all mt-4 border border-blue-400/20 btn-glow">Entrar</button>
+                <div class="relative py-4">
+                    <div class="absolute inset-0 flex items-center"><span class="w-full border-t border-white/10"></span></div>
+                    <div class="relative flex justify-center text-[9px] uppercase tracking-[0.2em] font-black text-gray-600"><span class="bg-[#0e1016] px-4">ou</span></div>
+                </div>
+
+
+                <div class="text-center">
+    <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest cursor-pointer hover:text-blue-300 transition-colors" onclick="toggleAuthMode()" id="toggle-text">Criar nova conta</p>
+</div>
+                <button onclick="startQRLoginFlow()" class="w-full bg-white/5 border border-white/10 text-gray-300 p-3 rounded-xl hover:bg-white/10 hover:text-white flex items-center justify-center gap-3 transition-all font-bold text-xs group">
+                    <svg class="w-4 h-4 text-gray-500 group-hover:text-blue-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1-1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
+                    Acessar via QR Code
+                </button>
+                <div id="forgot-password-area" class="pt-1 text-center">
+                    <a href="/forgotpassword" class="text-[10px] font-semibold text-gray-500 hover:text-blue-400 transition-colors tracking-wide">Esqueci minha senha</a>
+                </div>
+                <h2 id="auth-title" class="hidden">ExameScan</h2>
+            </div>
+            <div id="qr-display-area" class="hidden animate-in fade-in zoom-in duration-300">
+                <div id="qrcode" class="bg-white p-4 rounded-[1.5rem] inline-block mb-4 shadow-sm border border-white/20"></div>
+                <p class="text-gray-400 text-xs text-center mb-4 leading-relaxed px-2">No seu outro dispositivo, toque em "Conectar Web" para escanear este código.</p>
+                <div class="flex items-center justify-center gap-3 text-blue-400 font-bold text-xs">
+
+                    <div class="loader"></div> <span class="tracking-widest uppercase">Sincronizando...</span>
+                </div>
+                <button onclick="cancelQRLogin()" class="mt-8 text-[10px] font-black text-gray-500 uppercase tracking-widest hover:text-red-400 transition-colors">Voltar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboard" class="hidden min-h-screen pb-20">
+        <nav class="w-full z-40 px-6 py-6 bg-transparent sticky top-0">
+            <div class="max-w-6xl mx-auto flex items-center gap-4 relative">
+                <button onclick="toggleProfileMenu()" class="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-gray-400 hover:bg-blue-600/20 hover:text-blue-400 transition-all border border-white/10 hover:border-blue-500/30">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                </button>
+                <button onclick="openScanner()" class="md:hidden bg-white/5 border border-white/10 text-gray-300 px-5 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-white/10 flex items-center gap-2 transition-all active:scale-95 hover:border-white/20">
+                    <svg class="h-4 w-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></svg>
+                    Conectar Web
+                </button>
+                <button id="nav-plans-btn" onclick="openPlansModal()" class="ml-auto w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-gray-400 hover:bg-blue-600/20 hover:text-blue-400 transition-all border border-white/10 hover:border-blue-500/30" title="Planos">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                </button>
+                <button onclick="logout()" class="flex w-10 h-10 bg-white/5 rounded-full items-center justify-center text-gray-400 hover:bg-red-500/20 hover:text-red-400 transition-all border border-white/10 hover:border-red-500/30" title="Sair">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                </button>
+                <div id="profile-menu" class="hidden-scale absolute top-[calc(100%+12px)] left-0 w-72 glass-modal rounded-[1.5rem] shadow-2xl p-6 z-50 transition-all origin-top-left">
+                    <div class="mb-6 pb-6 border-b border-white/10">
+                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2">Logado como</span>
+                        <p class="text-sm font-bold text-white truncate" id="user-display-name">Carregando...</p>
+                    </div>
+                    <div class="space-y-2">
+                        <button id="menu-plans-btn" onclick="openPlansModal()" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-gray-300 group">
+                            <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-600 transition-colors">
+                                <svg class="w-4 h-4 text-blue-400 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            </div>
+                            <span class="text-xs font-bold uppercase tracking-widest">Planos e Upgrade</span>
+                        </button>
+                        <button onclick="logout()" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-red-500/10 transition-all text-red-400 group">
+                            <div class="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center group-hover:bg-red-500 transition-colors">
+                                <svg class="w-4 h-4 text-red-500 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                            </div>
+                            <span class="text-xs font-bold uppercase tracking-widest">Sair</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="max-w-6xl mx-auto p-6 md:p-12 pt-8">
+            <header class="flex flex-col md:flex-row justify-between items-center mb-16 gap-8">
+                <div class="text-center md:text-left">
+                    <h1 class="glowing-brand mb-2">ExameScan</h1>
+                </div>
+                <button onclick="openUploadModal()" class="w-full md:w-auto bg-[#0f172a] hover:bg-[#1e293b] text-white px-8 py-4 rounded-full font-bold text-[11px] uppercase tracking-[0.1em] shadow-[0_0_20px_rgba(59,130,246,0.15)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 border border-blue-500/30 group">
+                    <svg class="h-5 w-5 text-blue-500 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 4v16m8-8H4" /></svg>
+                    Novo Exame
+                </button>
+            </header>
+            <div id="doc-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </main>
+    </div>
+
+    <div id="analysis-modal" class="modal opacity-0 pointer-events-none fixed inset-0 z-[50] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="closeModal('analysis-modal')"></div>
+        <div class="glass-modal w-full max-w-4xl rounded-[3rem] p-10 shadow-2xl relative z-10 border border-white/10 max-h-[90vh] flex flex-col">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-6">
+                
+                <div class="title-glass-frame">
+                    <div class="title-icon-box">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <h3 id="analysis-title" class="text-lg font-bold tracking-tight text-white leading-tight"></h3>
+                </div>
+
+                <div id="view-toggle" class="switch-toggle" onclick="toggleAnalysisView()">
+                    <div class="slider"></div>
+                    <span id="label-text" class="active">Transcrição</span>
+                    <span id="label-analysis">Análise</span>
+                </div>
+                
+                <button onclick="closeModal('analysis-modal')" class="text-gray-500 hover:text-white transition-colors p-2 absolute right-8 top-8 md:relative md:right-0 md:top-0">
+                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            
+            <div id="analysis-content-area" class="flex-1 overflow-y-auto mb-8 pr-2 custom-scroll relative">
+                <div id="analysis-text-view" class="block">
+                     <div id="analysis-content"></div>
+                </div>
+
+                <div id="analysis-visual-view" class="hidden min-h-[300px]">
+                    <div id="analysis-placeholder" class="flex flex-col items-center justify-center h-full py-12 text-center">
+                        <div class="p-6 bg-blue-500/10 rounded-full mb-6">
+                            <svg class="w-12 h-12 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-2">Análise Clínica Inteligente</h4>
+                        <p class="text-gray-400 text-sm max-w-sm mb-8">Identifique alterações e interprete resultados automaticamente</p>
+                        <button onclick="requestInterpretation()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold shadow-lg shadow-blue-900/40 active:scale-[0.98] transition-all btn-glow uppercase tracking-widest text-xs">
+                            Interpretar Exame
+                        </button>
+                    </div>
+
+                    <div id="analysis-loading" class="hidden flex flex-col items-center justify-center h-full py-12">
+                         <div class="loader mb-6" style="width: 40px; height: 40px; border-width: 3px;"></div>
+                         <p id="analysis-loading-text" class="text-blue-400 font-bold text-xs uppercase tracking-[0.2em] animate-pulse">Iniciando análise...</p>
+                    </div>
+
+                    <div id="analysis-results" class="space-y-6 hidden"></div>
+
+                    <div id="analysis-disclaimer" class="mt-8 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl flex items-start gap-3 hidden">
+                        <svg class="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                        <div>
+                            <p class="text-xs font-bold text-yellow-400 uppercase tracking-wider mb-1">Aviso Importante</p>
+                            <p class="text-xs text-yellow-200/70 leading-relaxed">A análise automática pode conter imprecisões. Este resumo não substitui o laudo original nem a avaliação de um médico. Confira sempre os valores no documento original.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-start pt-4 border-t border-white/10" id="copy-action-area">
+                <button onclick="copyAnalysisText()" class="bg-white/5 border border-white/10 text-white px-8 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-blue-600 hover:border-blue-500 transition-all flex items-center gap-2 shadow-lg group">
+                    <svg class="w-4 h-4 text-blue-400 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+                    Copiar como texto
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="plans-modal" class="modal opacity-0 pointer-events-none fixed inset-0 z-[60] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="closeModal('plans-modal')"></div>
+        <div class="glass-modal w-full max-w-5xl rounded-[3rem] p-8 md:p-12 shadow-2xl relative z-10 border border-white/10 overflow-y-auto max-h-[94vh]">
+            <button onclick="closeModal('plans-modal')" class="absolute top-8 right-8 text-gray-500 hover:text-white transition-colors p-2">
+                <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <div id="plans-header" class="text-center mb-12">
+                <h3 class="text-4xl font-bold tracking-tight mb-4 text-white">ASSINATURAS</h3>
+                <p class="text-gray-400 font-medium">Escolha o plano ideal para a sua demanda</p>
+            </div>
+            <div id="period-area" class="flex flex-col items-center mb-12">
+                <div id="period-selector" class="switch-toggle" onclick="toggleBilling()">
+                    <div class="slider"></div>
+                    <span id="label-anual" class="active">Anual <em class="not-italic text-[9px] text-green-400 ml-1">-20%</em></span>
+                    <span id="label-mensal">Mensal</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="plans-grid">
+                <div class="glass-card p-10 rounded-[2.5rem] flex flex-col h-full bg-white/5 border border-white/5">
+                    <h4 class="text-xl font-bold mb-1 text-gray-300">Iniciante</h4>
+                    <div class="flex items-baseline gap-1 mt-4 mb-8"><span class="text-4xl font-bold text-white">Grátis</span></div>
+                    <ul class="space-y-4 mb-10 flex-1">
+                        <li class="flex items-center gap-3 text-sm font-medium text-gray-400"><svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> 2 exames/mês</li>
+                        <li class="flex items-center gap-3 text-sm font-medium text-gray-400"><svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Histórico básico</li>
+                    </ul>
+                    <button id="btn-plan-0" class="w-full py-5 rounded-2xl font-bold text-[10px] uppercase tracking-widest bg-white/5 text-gray-500 border border-white/5">Plano Atual</button>
+                </div>
+                <div class="glass-card p-10 rounded-[2.5rem] flex flex-col h-full relative shadow-2xl bg-blue-900/10 border border-blue-500/30 scale-105 z-10">
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-6 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest shadow-lg shadow-blue-600/40">Mais Popular</div>
+                    <h4 class="text-xl font-bold mb-1 text-blue-400">Essencial</h4>
+                    <div class="flex items-baseline gap-1 mt-4 mb-8">
+                        <span id="price-basic" class="text-5xl font-bold text-white tracking-tighter drop-shadow-lg">R$ 29</span>
+                        <span class="text-gray-400 text-xs font-bold uppercase">/mês</span>
+                    </div>
+                    <ul class="space-y-4 mb-10 flex-1">
+                        <li class="flex items-center gap-3 text-sm font-bold text-gray-200"><svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> 10 exames/mês</li>
+                        <li class="flex items-center gap-3 text-sm font-bold text-gray-200"><svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> IA Médica avançada</li>
+                    </ul>
+                    <button id="btn-plan-1" onclick="handleSubscribe(1)" class="w-full py-5 rounded-2xl font-bold text-[10px] uppercase tracking-widest bg-blue-600 text-white shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:bg-blue-500 hover:scale-105 transition-all">Começar agora</button>
+                </div>
+                <div class="glass-card p-10 rounded-[2.5rem] flex flex-col h-full bg-[#0a0a0a] border border-white/10">
+                    <h4 class="text-xl font-bold mb-1 text-white">Ilimitado</h4>
+                    <div class="flex items-baseline gap-1 mt-4 mb-8">
+                        <span id="price-pro" class="text-5xl font-bold text-white tracking-tighter">R$ 59</span>
+                        <span class="text-gray-500 text-xs font-bold uppercase">/mês</span>
+                    </div>
+                    <ul class="space-y-4 mb-10 flex-1">
+                        <li class="flex items-center gap-3 text-sm font-bold text-gray-400"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Exames ilimitados</li>
+                        <li class="flex items-center gap-3 text-sm font-bold text-gray-400"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Suporte Prioritário</li>
+                    </ul>
+                    <button id="btn-plan-2" onclick="handleSubscribe(2)" class="w-full py-5 rounded-2xl font-bold text-[10px] uppercase tracking-widest bg-white text-black hover:bg-gray-200 hover:scale-105 transition-all shadow-lg">Assinar Pro</button>
+                </div>
+            </div>
+            <div id="checkout-container" class="hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div class="text-center mb-8">
+                    <h3 class="text-2xl font-bold text-white">Finalizar Assinatura</h3>
+                    <p class="text-gray-400 text-sm">Pagamento seguro processado pelo Stripe.</p>
+                </div>
+                <div id="checkout" class="min-h-[450px]"></div>
+                <button onclick="hideCheckout()" class="mt-8 w-full text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 hover:text-red-400 transition-colors">Voltar aos planos</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="upload-modal" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center p-4 z-[50]">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="closeModal('upload-modal')"></div>
+        <div class="glass-modal w-full max-w-lg rounded-[3rem] p-10 shadow-2xl relative z-10 border border-white/10">
+            <h3 class="text-2xl font-bold mb-8 tracking-tight text-white">Processar novo exame</h3>
+            <div class="space-y-6">
+                <div class="space-y-2">
+                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-[0.2em] ml-1">Identificação</label>
+                    <input type="text" id="new-doc-name" placeholder="Ex: Hemograma do Seu João" class="w-full p-4 rounded-2xl outline-none text-sm font-medium transition-all placeholder-gray-600">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="document.getElementById('file-input-hidden').click()" class="flex flex-col items-center justify-center p-8 border border-dashed border-white/20 rounded-[2rem] hover:bg-blue-500/10 hover:border-blue-500/50 transition-all group">
+                        <svg class="w-7 h-7 text-gray-400 group-hover:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                        <span class="text-[11px] font-bold uppercase text-gray-500 mt-2 group-hover:text-blue-300">Arquivos</span>
+                    </button>
+                    <button onclick="openInAppCamera()" class="flex flex-col items-center justify-center p-8 border border-dashed border-white/20 rounded-[2rem] hover:bg-green-500/10 hover:border-green-500/50 transition-all group">
+                        <svg class="w-7 h-7 text-gray-400 group-hover:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812-1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><circle cx="12" cy="13" r="3" /></svg>
+                        <span class="text-[11px] font-bold uppercase text-gray-500 mt-2 group-hover:text-green-300">Câmera</span>
+                    </button>
+                </div>
+                <input type="file" id="file-input-hidden" multiple accept="image/*" class="hidden" onchange="handleFileSelect(event)">
+                <div id="preview-area" class="preview-grid hidden max-h-40 overflow-y-auto"></div>
+                <div class="flex gap-4 pt-4">
+                    <button onclick="closeModal('upload-modal')" class="flex-1 py-5 text-gray-500 hover:text-white font-bold text-xs uppercase tracking-widest transition-colors">Voltar</button>
+                    <button onclick="processDocument()" id="start-ia-btn" class="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white py-5 rounded-2xl font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-blue-900/50 disabled:opacity-50 btn-glow">Processar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="camera-modal" class="modal opacity-0 pointer-events-none fixed inset-0 z-[100] flex items-center justify-center bg-black">
+        <div class="w-full max-w-lg h-full flex flex-col p-8">
+            <div class="flex justify-between items-center mb-8">
+                <span class="text-white text-[10px] font-black uppercase tracking-[0.4em] opacity-60">Escaneamento Médico</span>
+                <button onclick="cancelCameraSession()" class="text-white/40 hover:text-red-500 font-bold text-xs tracking-widest transition-colors uppercase">Fechar</button>
+            </div>
+            <div id="camera-wrapper">
+                <video id="camera-video" autoplay playsinline></video>
+                <div class="absolute inset-8 border-2 border-white/20 rounded-[2rem] pointer-events-none"></div>
+                <div class="scan-line absolute top-0 left-0 w-full h-1 bg-blue-500 shadow-[0_0_20px_#3b82f6] animate-[scan_2s_infinite]"></div>
+                <canvas id="camera-canvas" class="hidden"></canvas>
+            </div>
+            <div class="py-12 flex justify-center items-center gap-12">
+                <div class="w-12 text-center text-white"><span id="photo-count" class="bg-blue-600 px-3 py-1 rounded-full text-[10px] font-black">0</span></div>
+                <button onclick="takeSnapshot()" class="w-24 h-24 bg-white/5 rounded-full border-[6px] border-white/20 flex items-center justify-center hover:bg-white/10 active:scale-95 transition-all">
+                    <div class="bg-white rounded-full w-[70px] h-[70px]"></div>
+                </button>
+                <button onclick="closeCamera()" class="w-12 text-center text-green-400 font-black text-[10px] uppercase tracking-widest">Pronto</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="scanner-modal" class="modal opacity-0 pointer-events-none fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-md" onclick="closeScanner()"></div>
+        <div class="glass-modal bg-[#101012] w-full max-w-md rounded-[3rem] overflow-hidden shadow-2xl relative z-10 p-10 border border-white/10">
+            <button onclick="closeScanner()" class="absolute top-6 right-6 text-gray-500 hover:text-red-500 transition-colors z-20">
+                <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <div id="reader" class="rounded-[2.5rem] overflow-hidden bg-black border border-white/10 aspect-square"></div>
+            <p class="text-center mt-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Escaneie o QR Code no computador</p>
+        </div>
+    </div>
+
+    <div id="confirm-delete-modal" class="modal opacity-0 pointer-events-none fixed inset-0 z-[110] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeModal('confirm-delete-modal')"></div>
+        <div class="glass-modal w-full max-w-sm rounded-[3rem] p-10 shadow-2xl relative z-10 text-center border border-white/10">
+            <h3 class="text-2xl font-bold text-white mb-2">Excluir exame?</h3>
+            <div class="flex gap-4 mt-8">
+                <button onclick="closeModal('confirm-delete-modal')" class="flex-1 py-5 bg-white/5 hover:bg-white/10 text-gray-300 rounded-2xl font-bold text-[11px] uppercase transition-colors">Manter</button>
+                <button id="confirm-delete-btn" class="flex-1 py-5 bg-red-600 hover:bg-red-500 text-white rounded-2xl font-bold text-[11px] uppercase shadow-lg shadow-red-900/30 transition-colors">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://doc-interpret-926187447831.europe-west1.run.app';
+        const stripe = Stripe('pk_test_51SwTKe9JbbIHrSR1EC127ttxDqR0HBkTNR0wuTxWolqvIS3eadY4rPHPfRMi1A4JZHePfgxVoElKS0Iy2yx8hX1200LiqJrUKw');
+        
+        let token = localStorage.getItem('token');
+        let isLogin = true;
+        let selectedFiles = [];
+        let cameraStream = null;
+        let html5QrCode = null;
+        let eventSource = null;
+        let currentAnalysisRawText = "";
+        let currentDocId = null;
+        let pendingDeleteId = null;
+        let currentBilling = 'anual'; 
+        let currentView = 'text'; // 'text' or 'analysis'
+        let checkoutInstance = null;
+
+        let userSubscriptionData = { plan: 0, interval: 'year' };
+        let newlyCompletedDocs = new Set();
+
+        const loadingPhrases = [
+            "Extraindo dados do laudo...",
+            "IA interpretando resultados...",
+            "Cruzando referências médicas...",
+            "Organizando recomendações...",
+            "Finalizando relatório..."
+        ];
+
+        // === CREDITS EXHAUSTED STATE MANAGEMENT ===
+        let creditsExhausted = false;
+
+        // Tracks whether dashboard is visible (not auth screen)
+        let dashboardVisible = false;
+
+        function syncBannerVisibility() {
+            const banner = document.getElementById('credits-banner');
+            if (!banner) return;
+            const shouldShow = creditsExhausted && dashboardVisible && openModalsCount === 0;
+            banner.className = shouldShow ? 'credits-banner-visible' : 'credits-banner-hidden';
+        }
+
+        function triggerCreditsExhausted() {
+            if (creditsExhausted) return; // already active, don't stack
+            creditsExhausted = true;
+
+            // Show persistent banner only if dashboard is visible and no modal is open
+            syncBannerVisibility();
+
+            // Glow all plan-opening buttons
+            ['nav-plans-btn', 'menu-plans-btn'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) btn.classList.add('credits-glow-btn');
+            });
+        }
+
+        function clearCreditsExhausted() {
+            if (!creditsExhausted) return;
+            creditsExhausted = false;
+
+            // Hide persistent banner
+            syncBannerVisibility();
+
+            // Remove glow from buttons
+            ['nav-plans-btn', 'menu-plans-btn'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) btn.classList.remove('credits-glow-btn');
+            });
+        }
+
+        function notify(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerText = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 50);
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 3500);
+        }
+
+        if (token) showDashboard();
+
+        function toggleAuthMode() {
+            isLogin = !isLogin;
+            document.getElementById('auth-title').innerText = isLogin ? 'ExameScan' : 'Crie sua conta';
+            document.getElementById('toggle-text').innerText = isLogin ? 'Criar nova conta' : 'Já tenho uma conta';
+            document.getElementById('auth-submit-btn').innerText = isLogin ? 'Entrar' : 'Criar conta';
+            document.getElementById('confirm-password-field').classList.toggle('hidden', isLogin);
+            document.getElementById('forgot-password-area').classList.toggle('hidden', !isLogin);
+            if (!isLogin) document.getElementById('confirm-password').value = '';
+        }
+
+        async function handleAuth() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+            if(!email || !password) return notify('Preencha todos os campos', 'error');
+            if (!isLogin) {
+                const confirm = document.getElementById('confirm-password').value;
+                if (!confirm) return notify('Confirme sua senha', 'error');
+                if (password !== confirm) return notify('As senhas não coincidem', 'error');
+
+                const trustedDomains = [
+                    'gmail.com', 'googlemail.com',
+                    'outlook.com', 'hotmail.com', 'hotmail.com.br', 'live.com', 'live.com.br', 'msn.com',
+                    'yahoo.com', 'yahoo.com.br', 'yahoo.co.uk', 'yahoo.fr', 'yahoo.de', 'yahoo.es', 'yahoo.it', 'yahoo.com.ar', 'yahoo.com.mx',
+                    'icloud.com', 'me.com', 'mac.com',
+                    'proton.me', 'protonmail.com',
+                    'uol.com.br', 'bol.com.br', 'terra.com.br', 'ig.com.br', 'r7.com',
+                    'aol.com',
+                    'zoho.com',
+                    'yandex.com', 'yandex.ru',
+                    'gmx.com', 'gmx.net', 'gmx.de',
+                    'mail.com',
+                    'web.de',
+                    'tutanota.com', 'tuta.com',
+                    'fastmail.com', 'fastmail.fm',
+                    'pm.me',
+                    'outlook.com.br',
+                ];
+                const emailDomain = email.split('@')[1]?.toLowerCase();
+                if (!emailDomain || !trustedDomains.includes(emailDomain)) {
+                    return notify('⚠️ Por favor, use um endereço de e-mail de um provedor conhecido (Gmail, Outlook, Yahoo, iCloud, etc.). E-mails temporários não são aceitos.', 'error');
+                }
+            }
+            try {
+                const res = await fetch(`${API_URL}${endpoint}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+                const data = await res.json();
+                if (res.ok) {
+                    if (data.token) {
+                        token = data.token;
+                        localStorage.setItem('token', token);
+                        localStorage.setItem('userEmail', email);
+                        if (!isLogin) notify('Conta criada com sucesso!', 'success');
+                        showDashboard();
+                    } else {
+                        isLogin = true; toggleAuthMode(); notify('Conta criada! Por favor, faça login.', 'success');
+                    }
+                } else { notify(data.error || 'Erro na autenticação', 'error'); }
+            } catch (err) { notify('Erro de conexão com o servidor', 'error'); }
+        }
+
+        function startQRLoginFlow() {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('qr-display-area').classList.remove('hidden');
+            const uuid = crypto.randomUUID();
+            document.getElementById('qrcode').innerHTML = "";
+            new QRCode(document.getElementById("qrcode"), { text: uuid, width: 180, height: 180, colorDark: "#000000", colorLight: "#ffffff" });
+            if (eventSource) eventSource.close();
+            eventSource = new EventSource(`${API_URL}/api/auth/login-qr/stream?uuid=${uuid}`);
+            eventSource.addEventListener('login', (e) => {
+                const data = JSON.parse(e.data);
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('userEmail', data.email || 'Usuário');
+                location.reload(); 
+            });
+        }
+
+        function cancelQRLogin() {
+            if (eventSource) eventSource.close();
+            document.getElementById('login-form').classList.remove('hidden');
+            document.getElementById('qr-display-area').classList.add('hidden');
+        }
+
+        function toggleBilling() {
+            const toggle = document.getElementById('period-selector');
+            currentBilling = currentBilling === 'anual' ? 'mensal' : 'anual';
+            toggle.classList.toggle('mensal', currentBilling === 'mensal');
+            toggle.classList.toggle('toggled', currentBilling === 'mensal');
+            document.getElementById('price-basic').innerText = currentBilling === 'anual' ? 'R$ 29' : 'R$ 39';
+            document.getElementById('price-pro').innerText = currentBilling === 'anual' ? 'R$ 59' : 'R$ 79';
+            updatePlanButtons();
+        }
+
+        function updatePlanButtons() {
+            const userPlan     = userSubscriptionData.plan;
+            const userInterval = userSubscriptionData.interval; // already normalized
+            const uiInterval   = currentBilling === 'anual' ? 'year' : 'month';
+
+            [0, 1, 2].forEach(lvl => {
+                const btn = document.getElementById(`btn-plan-${lvl}`);
+                if (!btn) return;
+
+                // "Plano Atual": same tier AND same billing period visible in UI
+                const isCurrentPlan = (lvl === userPlan) && (uiInterval === userInterval);
+                // "Indisponível": lower tier OR same tier with inferior interval (anual > mensal)
+                const isDowngrade   = lvl < userPlan ||
+                                      (lvl === userPlan && userInterval === 'year' && uiInterval === 'month');
+
+                if (isCurrentPlan) {
+                    btn.disabled = true;
+                    btn.innerText = "Plano Atual";
+                    btn.className = "w-full py-5 rounded-2xl font-bold text-[10px] uppercase bg-white/5 text-green-400 cursor-default border border-green-500/20";
+                } else if (isDowngrade) {
+                    btn.disabled = true;
+                    btn.innerText = "Indisponível";
+                    btn.className = "w-full py-5 rounded-2xl font-bold text-[10px] uppercase bg-white/5 text-gray-600 cursor-default";
+                } else {
+                    btn.disabled = false;
+                    btn.innerText = lvl === 2 ? "Assinar Pro" : (lvl === 0 ? "Selecionar" : "Começar agora");
+                    btn.className = lvl === 2
+                        ? "w-full py-5 rounded-2xl font-bold text-[10px] uppercase bg-white text-black hover:scale-105 transition-all shadow-lg"
+                        : "w-full py-5 rounded-2xl font-bold text-[10px] uppercase bg-blue-600 text-white shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:bg-blue-500 hover:scale-105 transition-all";
+                }
+            });
+        }
+
+        async function openPlansModal() {
+            hideCheckout(); 
+            try {
+                const res = await fetch(`${API_URL}/api/subscription`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                if (res.status === 403) return notify(data.error || 'Verifique sua conta primeiro.', 'error');
+                userSubscriptionData.plan = data.subscription_plan || 0;
+                // Normalize interval: API might return 'monthly'/'annual'/'mensal'/'anual' variants
+                const rawInterval = ((data.subscription && data.subscription.interval) || data.subscription_interval || '').toLowerCase();
+                userSubscriptionData.interval = rawInterval.startsWith('month') || rawInterval === 'mensal' ? 'month' : 'year';
+
+                // Initialize the billing toggle to match the user's actual plan interval,
+                // so a monthly subscriber sees their plan correctly highlighted on open.
+                const userIsMonthly = userSubscriptionData.interval === 'month' && userSubscriptionData.plan > 0;
+                currentBilling = userIsMonthly ? 'mensal' : 'anual';
+                const toggle = document.getElementById('period-selector');
+                toggle.classList.toggle('toggled', userIsMonthly);
+                document.getElementById('label-anual').classList.toggle('active', !userIsMonthly);
+                document.getElementById('label-mensal').classList.toggle('active', userIsMonthly);
+                document.getElementById('price-basic').innerText = userIsMonthly ? 'R$ 39' : 'R$ 29';
+                document.getElementById('price-pro').innerText   = userIsMonthly ? 'R$ 79' : 'R$ 59';
+
+                updatePlanButtons();
+                openModal('plans-modal');
+            } catch (err) { notify('Erro ao carregar planos', 'error'); }
+        }
+
+        async function handleSubscribe(planId) {
+            clearCreditsExhausted(); // User is taking action — clear the exhausted state
+            const interval = currentBilling === 'anual' ? 'year' : 'month';
+            const btn = document.getElementById(`btn-plan-${planId}`);
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = "Processando...";
+            try {
+                const res = await fetch(`${API_URL}/api/subscription/subscribe`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ plan: parseInt(planId), interval: interval })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Erro na requisição');
+                if (data.clientSecret) { initStripeCheckout(data.clientSecret); } 
+                else if (data.subscription_plan) { notify(data.message, 'success'); openPlansModal(); }
+            } catch (err) { notify(err.message, 'error'); } 
+            finally { btn.disabled = false; btn.innerText = originalText; }
+        }
+
+        async function initStripeCheckout(clientSecret) {
+            document.getElementById('plans-grid').classList.add('hidden');
+            document.getElementById('plans-header').classList.add('hidden');
+            document.getElementById('period-area').classList.add('hidden');
+            document.getElementById('checkout-container').classList.remove('hidden');
+            const checkoutDiv = document.getElementById('checkout');
+            checkoutDiv.innerHTML = "";
+            if (checkoutInstance) checkoutInstance.destroy();
+            try {
+                checkoutInstance = await stripe.initEmbeddedCheckout({ clientSecret });
+                checkoutInstance.mount('#checkout');
+            } catch (e) { notify("Erro ao inicializar checkout", "error"); hideCheckout(); }
+        }
+
+        function hideCheckout() {
+            document.getElementById('plans-grid').classList.remove('hidden');
+            document.getElementById('plans-header').classList.remove('hidden');
+            document.getElementById('period-area').classList.remove('hidden');
+            document.getElementById('checkout-container').classList.add('hidden');
+            if (checkoutInstance) { checkoutInstance.destroy(); checkoutInstance = null; }
+        }
+
+        function showDashboard() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            dashboardVisible = true;
+            syncBannerVisibility();
+            document.getElementById('user-display-name').innerText = localStorage.getItem('userEmail') || 'Usuário';
+            loadDocuments();
+        }
+
+        const PAGE_SIZE = 15;
+        let allDocuments = [];
+        let renderedCount = 0;
+
+        async function loadDocuments() {
+            try {
+                const res = await fetch(`${API_URL}/api/documents`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                allDocuments = data.documentos || [];
+                renderedCount = 0;
+                const list = document.getElementById('doc-list');
+                list.innerHTML = '';
+                if (allDocuments.length === 0) {
+                    list.innerHTML = `<div class="col-span-full py-20 text-center text-gray-600">Nenhum exame.</div>`;
+                    return;
+                }
+                renderNextPage();
+            } catch (e) { notify('Erro ao carregar documentos', 'error'); }
+        }
+
+        function renderNextPage() {
+            const list = document.getElementById('doc-list');
+            // Remove existing load-more button if present
+            const existing = document.getElementById('load-more-btn-wrapper');
+            if (existing) existing.remove();
+
+            const slice = allDocuments.slice(renderedCount, renderedCount + PAGE_SIZE);
+            slice.forEach(doc => {
+                const temp = document.createElement('div');
+                temp.innerHTML = renderCardHTML(doc);
+                list.appendChild(temp.firstElementChild);
+                if (doc.is_pending_analysis) startPhraseCycle(doc.id);
+            });
+            renderedCount += slice.length;
+
+            if (renderedCount < allDocuments.length) {
+                const remaining = allDocuments.length - renderedCount;
+                const wrapper = document.createElement('div');
+                wrapper.id = 'load-more-btn-wrapper';
+                wrapper.className = 'col-span-full flex justify-center mt-4';
+                wrapper.innerHTML = `
+                    <button onclick="renderNextPage()" class="bg-white/5 border border-white/10 text-gray-300 px-10 py-4 rounded-full font-bold text-[10px] uppercase tracking-widest hover:bg-blue-600 hover:border-blue-500 hover:text-white transition-all shadow-lg active:scale-95">
+                        Carregar mais <span class="ml-2 text-gray-500">(${remaining} restantes)</span>
+                    </button>`;
+                list.appendChild(wrapper);
+            }
+        }
+
+        function renderProntobadge() {
+            return `<span class="inline-flex items-center gap-1.5 bg-blue-500/15 border border-blue-400/30 text-blue-300 text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-widest backdrop-blur-sm"><span class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse inline-block"></span>Novo!</span>`;
+        }
+
+        function renderCardBottomArea(docId, isPending) {
+            if (isPending) {
+                return renderPendingState();
+            }
+            return `<button onclick="viewAnalysis('${docId}')" class="w-full bg-white/5 border border-white/10 text-white py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-blue-600 hover:border-blue-500 hover:shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-all shadow-lg active:scale-95">Ver Exame</button>`;
+        }
+
+        function renderCardHTML(doc) {
+            const isPending = doc.is_pending_analysis;
+            const isNew = newlyCompletedDocs.has(String(doc.id));
+            return `
+                <div id="doc-${doc.id}" class="glass-card p-8 rounded-[2rem] group relative ${isPending ? 'shimmer' : ''}">
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="p-4 bg-blue-500/10 rounded-2xl text-blue-400 ring-1 ring-blue-500/20">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        </div>
+                        <div id="badge-container-${doc.id}" class="flex-1 flex justify-center px-2">
+                            ${isNew ? renderProntobadge() : ''}
+                        </div>
+                        <button onclick="requestDelete('${doc.id}')" class="p-3 bg-white/5 text-gray-500 rounded-xl hover:text-red-500 hover:bg-white/10 transition-all"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+                    </div>
+                    <h4 class="font-bold text-white truncate mb-1 text-lg tracking-tight">${doc.nome || 'Sem Nome'}</h4>
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-10">${new Date(doc.created_at).toLocaleDateString()}</p>
+                    <div id="btn-container-${doc.id}">
+                        ${renderCardBottomArea(String(doc.id), isPending)}
+                    </div>
+                </div>`;
+        }
+
+        function renderPendingState() {
+            return `<div class="space-y-3"><div class="flex items-center justify-center gap-3 py-4 bg-blue-900/10 border border-blue-500/20 text-blue-400 rounded-2xl"><div class="loader"></div><span class="phrase-text text-[9px] font-bold uppercase tracking-widest animate-pulse">Iniciando análise...</span></div></div>`;
+        }
+
+        function startPhraseCycle(docId) {
+            const card = document.getElementById(`doc-${docId}`);
+            if (!card) return;
+            const phraseEl = card.querySelector('.phrase-text');
+            let i = 0;
+            const interval = setInterval(() => {
+                if (!document.getElementById(`doc-${docId}`) || !card.querySelector('.loader')) { clearInterval(interval); return; }
+                if (phraseEl) phraseEl.innerText = loadingPhrases[i % loadingPhrases.length];
+                i++;
+            }, 3000);
+        }
+
+        async function processDocument() {
+            const name = document.getElementById('new-doc-name').value;
+            const btn = document.getElementById('start-ia-btn');
+            if (!name || selectedFiles.length === 0) return notify('Nome e Imagem obrigatórios', 'error');
+            btn.disabled = true; btn.innerText = "Convertendo...";
+            try {
+                const b64s = await Promise.all(selectedFiles.map(file => {
+                    return new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result.split(',')[1]);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(file);
+                    });
+                }));
+                const response = await fetch(`${API_URL}/api/documents3`, {
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ images: b64s, nome: name })
+                });
+                if (response.status === 403) {
+                    const errorData = await response.json();
+                    notify(errorData.error || 'Seus créditos acabaram.', 'error');
+                    triggerCreditsExhausted();
+                    btn.disabled = false; return;
+                }
+                closeModal('upload-modal');
+                notify('Processando...', 'info');
+                await loadDocuments();
+
+                // Snapshot dos IDs pendentes ANTES do stream terminar
+                const pendingDocIds = new Set(
+                    Array.from(document.querySelectorAll('[id^="doc-"]'))
+                        .filter(el => el.classList.contains('shimmer'))
+                        .map(el => el.id.replace('doc-', ''))
+                );
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let streamBuffer = '';
+                let streamFoundDocId = null;
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    // Buffer correto: acumula e só processa linhas completas
+                    streamBuffer += decoder.decode(value, { stream: true });
+                    const lines = streamBuffer.split('\n');
+                    // Guarda a última linha (pode estar incompleta) no buffer
+                    streamBuffer = lines.pop();
+                    for (const line of lines) { 
+                        if (line.startsWith('data:')) { 
+                            try {
+                                const evtData = JSON.parse(line.slice(5).trim());
+                                console.log('[ExameScan stream]', evtData);
+                                if (evtData.status === 'completed') {
+                                    notify('Análise concluída!', 'success');
+                                    streamFoundDocId = evtData.document_id ?? evtData.id ?? evtData.doc_id ?? null;
+                                    if (streamFoundDocId) {
+                                        updateCardToFinished(streamFoundDocId);
+                                    }
+                                }
+                            } catch(e) {
+                                console.warn('[ExameScan stream parse error]', line, e);
+                            }
+                        } 
+                    }
+                }
+
+                // Fallback robusto: se o stream não entregou o ID ou o badge não apareceu,
+                // recarrega e compara quais docs saíram do estado pending
+                if (!streamFoundDocId) {
+                    await loadDocuments();
+                    pendingDocIds.forEach(docId => {
+                        const card = document.getElementById(`doc-${docId}`);
+                        if (card && !card.classList.contains('shimmer')) {
+                            updateCardToFinished(docId);
+                        }
+                    });
+                }
+            } catch (err) { notify('Erro no envio', 'error'); loadDocuments(); } 
+            finally { btn.disabled = false; btn.innerText = "Analisar com IA"; }
+        }
+
+        function updateCardToFinished(docId) {
+            newlyCompletedDocs.add(String(docId));
+            const card = document.getElementById(`doc-${docId}`);
+            const badgeContainer = document.getElementById(`badge-container-${docId}`);
+            const btnContainer = document.getElementById(`btn-container-${docId}`);
+            if (card && badgeContainer && btnContainer) {
+                card.classList.remove('shimmer');
+                badgeContainer.innerHTML = renderProntobadge();
+                btnContainer.innerHTML = renderCardBottomArea(String(docId), false);
+            } else {
+                loadDocuments();
+            }
+        }
+
+        async function openInAppCamera() {
+            openModal('camera-modal');
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                document.getElementById('camera-video').srcObject = cameraStream;
+            } catch (err) { closeCamera(); }
+        }
+
+        function takeSnapshot() {
+            const video = document.getElementById('camera-video');
+            const canvas = document.getElementById('camera-canvas');
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            canvas.toBlob((blob) => {
+                selectedFiles.push(new File([blob], `scan_${Date.now()}.jpg`, { type: 'image/jpeg' }));
+                document.getElementById('photo-count').innerText = selectedFiles.length;
+                renderPreviews();
+            }, 'image/jpeg', 0.85);
+        }
+
+        function closeCamera() { if (cameraStream) cameraStream.getTracks().forEach(t => t.stop()); closeModal('camera-modal'); }
+        function cancelCameraSession() { closeCamera(); }
+        
+        function handleFileSelect(e) { 
+            const files = Array.from(e.target.files);
+            files.forEach(f => selectedFiles.push(f)); 
+            renderPreviews(); e.target.value = ""; 
+        }
+
+        function renderPreviews() {
+            const area = document.getElementById('preview-area');
+            if (selectedFiles.length === 0) { area.classList.add('hidden'); return; }
+            area.classList.remove('hidden'); area.innerHTML = "";
+            selectedFiles.forEach((file, index) => {
+                const rd = new FileReader();
+                const div = document.createElement('div');
+                div.className = "preview-item";
+                rd.onload = (e) => { div.innerHTML = `<img src="${e.target.result}"><div class="remove-img" onclick="removeImage(${index})">&times;</div>`; };
+                rd.readAsDataURL(file);
+                area.appendChild(div);
+            });
+        }
+
+        function removeImage(index) { 
+            selectedFiles.splice(index, 1); renderPreviews(); 
+            document.getElementById('photo-count').innerText = selectedFiles.length; 
+        }
+
+        function openScanner() {
+            openModal('scanner-modal');
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (txt) => { authorizeOtherDevice(txt); closeScanner(); });
+        }
+
+        async function authorizeOtherDevice(uuid) {
+            const res = await fetch(`${API_URL}/api/auth/login-via-qr`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ uuid }) });
+            const data = await res.json();
+            notify(data.message || data.error, res.ok ? 'success' : 'error');
+        }
+
+        function closeScanner() { if (html5QrCode) html5QrCode.stop().finally(() => closeModal('scanner-modal')); else closeModal('scanner-modal'); }
+
+        // --- NOVA LÓGICA DE VISUALIZAÇÃO E INTERPRETAÇÃO ---
+
+        function toggleAnalysisView() {
+            const toggle = document.getElementById('view-toggle');
+            const textView = document.getElementById('analysis-text-view');
+            const visualView = document.getElementById('analysis-visual-view');
+            const labelText = document.getElementById('label-text');
+            const labelAnalysis = document.getElementById('label-analysis');
+            const copyArea = document.getElementById('copy-action-area');
+            const disclaimer = document.getElementById('analysis-disclaimer');
+
+            currentView = currentView === 'text' ? 'analysis' : 'text';
+            
+            if (currentView === 'analysis') {
+                toggle.classList.add('toggled');
+                labelText.classList.remove('active');
+                labelAnalysis.classList.add('active');
+                textView.classList.remove('block');
+                textView.classList.add('hidden');
+                visualView.classList.remove('hidden');
+                visualView.classList.add('block');
+                
+                // Hide copy button in Visual Mode
+                copyArea.classList.add('hidden');
+                
+                // Show Disclaimer if results are visible
+                if(!document.getElementById('analysis-results').classList.contains('hidden')){
+                   disclaimer.classList.remove('hidden');
+                }
+            } else {
+                toggle.classList.remove('toggled');
+                labelText.classList.add('active');
+                labelAnalysis.classList.remove('active');
+                textView.classList.add('block');
+                textView.classList.remove('hidden');
+                visualView.classList.add('hidden');
+                visualView.classList.remove('block');
+
+                // Show copy button in Text Mode
+                copyArea.classList.remove('hidden');
+                
+                // Hide disclaimer logic handled by visualView being hidden, but good to be explicit
+                disclaimer.classList.add('hidden');
+            }
+        }
+
+        async function viewAnalysis(id) {
+            currentDocId = id;
+            // Remove Novo! badge — update state and re-render bottom area if card is visible
+            if (newlyCompletedDocs.has(String(id))) {
+                newlyCompletedDocs.delete(String(id));
+                const badgeContainer = document.getElementById(`badge-container-${id}`);
+                if (badgeContainer) badgeContainer.innerHTML = '';
+                const container = document.getElementById(`btn-container-${id}`);
+                if (container) container.innerHTML = renderCardBottomArea(String(id), false);
+            }
+            // Reset UI state
+            currentView = 'text'; // Default view
+            document.getElementById('view-toggle').classList.remove('toggled');
+            document.getElementById('label-text').classList.add('active');
+            document.getElementById('label-analysis').classList.remove('active');
+            document.getElementById('analysis-text-view').classList.add('block');
+            document.getElementById('analysis-text-view').classList.remove('hidden');
+            document.getElementById('analysis-visual-view').classList.add('hidden');
+            document.getElementById('analysis-visual-view').classList.remove('block');
+            document.getElementById('analysis-placeholder').classList.remove('hidden');
+            document.getElementById('analysis-results').classList.add('hidden');
+            document.getElementById('analysis-loading').classList.add('hidden');
+            document.getElementById('copy-action-area').classList.remove('hidden');
+            document.getElementById('analysis-disclaimer').classList.add('hidden');
+
+            // Show modal immediately with loading skeleton — no more visible delay
+            document.getElementById('analysis-title').innerText = '...';
+            document.getElementById('analysis-content').innerHTML = `
+                <div class="space-y-4 animate-pulse pt-2">
+                    <div class="h-3 bg-white/10 rounded-full w-3/4"></div>
+                    <div class="h-3 bg-white/10 rounded-full w-full"></div>
+                    <div class="h-3 bg-white/10 rounded-full w-5/6"></div>
+                    <div class="h-3 bg-white/10 rounded-full w-full"></div>
+                    <div class="h-3 bg-white/10 rounded-full w-2/3"></div>
+                    <div class="h-3 bg-white/10 rounded-full w-full"></div>
+                    <div class="h-3 bg-white/10 rounded-full w-4/5"></div>
+                </div>`;
+            openModal('analysis-modal');
+
+            const res = await fetch(`${API_URL}/api/documents/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const data = await res.json();
+            
+            currentAnalysisRawText = data.documento.analise;
+            document.getElementById('analysis-title').innerText = data.documento.nome;
+            document.getElementById('analysis-content').innerHTML = marked.parse(data.documento.analise);
+            
+            // Check if interpretation exists
+            if (data.documento.interpreted) {
+                renderInterpretation(data.documento.interpreted);
+                document.getElementById('analysis-placeholder').classList.add('hidden');
+                document.getElementById('analysis-results').classList.remove('hidden');
+            } else if (data.documento.is_pending_interpretation) {
+                document.getElementById('analysis-placeholder').classList.add('hidden');
+                document.getElementById('analysis-loading').classList.remove('hidden');
+                startAnalysisPhraseCycle();
+            }
+        }
+
+        async function requestInterpretation() {
+            const placeholder = document.getElementById('analysis-placeholder');
+            const loading = document.getElementById('analysis-loading');
+            const results = document.getElementById('analysis-results');
+            const disclaimer = document.getElementById('analysis-disclaimer');
+
+            if (!currentDocId) return;
+
+            placeholder.classList.add('hidden');
+            loading.classList.remove('hidden');
+            startAnalysisPhraseCycle();
+            
+            let fullContent = ""; 
+            let successfulRender = false;
+
+            try {
+                const response = await fetch(`${API_URL}/api/documents3/${currentDocId}/interpret`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 403) {
+                    const data = await response.json();
+                    notify(data.error || 'Créditos insuficientes', 'error');
+                    triggerCreditsExhausted();
+                    loading.classList.add('hidden');
+                    placeholder.classList.remove('hidden');
+                    return;
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value, { stream: true });
+                    fullContent += chunk;
+
+                    const lines = fullContent.split('\n');
+                    for (const line of lines) {
+                        if (line.includes('"status":"completed"') && line.includes('"exams":')) {
+                            try {
+                                const jsonMatch = line.match(/\{.*\}/);
+                                if (jsonMatch) {
+                                    const payload = JSON.parse(jsonMatch[0]);
+                                    renderInterpretation(payload);
+                                    loading.classList.add('hidden');
+                                    results.classList.remove('hidden');
+                                    disclaimer.classList.remove('hidden');
+                                    successfulRender = true;
+                                }
+                            } catch (e) {}
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Erro no stream:", err);
+            } finally {
+                if (!successfulRender) {
+                    const finalCheck = await fetch(`${API_URL}/api/documents/${currentDocId}`, { 
+                        headers: { 'Authorization': `Bearer ${token}` } 
+                    });
+                    const finalData = await finalCheck.json();
+                    
+                    if (finalData.documento && finalData.documento.interpreted) {
+                        renderInterpretation(finalData.documento.interpreted);
+                        loading.classList.add('hidden');
+                        results.classList.remove('hidden');
+                        disclaimer.classList.remove('hidden');
+                        successfulRender = true;
+                    } else {
+                        notify("A interpretação está demorando mais que o esperado. Tente abrir o exame novamente em instantes.", "info");
+                        loading.classList.add('hidden');
+                        placeholder.classList.remove('hidden');
+                    }
+                } else {
+                    notify("Interpretação concluída!", "success");
+                }
+            }
+        }
+
+        function startAnalysisPhraseCycle() {
+            const textEl = document.getElementById('analysis-loading-text');
+            let i = 0;
+            const interval = setInterval(() => {
+                const loadingDiv = document.getElementById('analysis-loading');
+                if (loadingDiv.classList.contains('hidden')) {
+                    clearInterval(interval);
+                    return;
+                }
+                textEl.innerText = loadingPhrases[i % loadingPhrases.length];
+                i++;
+            }, 2500);
+        }
+
+        function renderInterpretation(data) {
+            const container = document.getElementById('analysis-results');
+            container.innerHTML = '';
+
+            if (!data.exams || data.exams.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500 mt-10">Nenhum dado estruturado encontrado.</p>';
+                return;
+            }
+
+            data.exams.forEach(exam => {
+                const examCard = document.createElement('div');
+                examCard.className = 'exam-section';
+                
+                const header = document.createElement('div');
+                header.className = 'exam-header flex justify-between items-center';
+                header.innerHTML = `<span>${exam.exam_name || 'Exame'}</span> <span class="text-[10px] text-gray-500 font-normal">${exam.exam_date || ''}</span>`;
+                examCard.appendChild(header);
+
+                exam.sections.forEach(section => {
+                    if (section.content_type === 'table' && section.parameters) {
+                        const tableWrapper = document.createElement('div');
+                        tableWrapper.className = 'overflow-x-auto';
+                        
+                        let rows = section.parameters.map(param => {
+                            let statusClass = 'status-neutral';
+                            let statusText = 'Normal';
+                            
+                            if (param.status === 'altered') {
+                                statusClass = 'status-altered';
+                                statusText = param.flag || 'Alterado';
+                            } else if (param.status === 'normal') {
+                                statusClass = 'status-normal';
+                            } else {
+                                statusText = '-';
+                            }
+
+                            return `
+                                <tr>
+                                    <td class="font-medium text-white">${param.name}</td>
+                                    <td class="font-bold text-white">${param.value} <span class="text-gray-500 text-[10px] font-normal ml-1">${param.unit || ''}</span></td>
+                                    <td class="text-gray-400 font-mono text-xs">${param.reference || '-'}</td>
+                                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                                </tr>
+                            `;
+                        }).join('');
+
+                        tableWrapper.innerHTML = `
+                            <table class="result-table">
+                                <thead>
+                                    <tr>
+                                        <th>Parâmetro</th>
+                                        <th>Resultado</th>
+                                        <th>Referência</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>${rows}</tbody>
+                            </table>
+                        `;
+                        examCard.appendChild(tableWrapper);
+                    } 
+                    else if (section.content_type === 'text') {
+                        const textBox = document.createElement('div');
+                        let highlightClass = 'report-neutral';
+                        if (section.highlight_level === 'high') highlightClass = 'report-high';
+                        if (section.highlight_level === 'medium') highlightClass = 'report-medium';
+                        
+                        textBox.className = `report-box ${highlightClass}`;
+                        
+                        let sectionTitle = section.section_name ? `<h5 class="text-xs font-bold uppercase tracking-widest mb-2 text-gray-300">${section.section_name}</h5>` : '';
+                        
+                        textBox.innerHTML = `
+                            ${sectionTitle}
+                            <p class="text-sm text-gray-300 leading-relaxed">${section.text_content}</p>
+                        `;
+                        examCard.appendChild(textBox);
+                    }
+                });
+
+                container.appendChild(examCard);
+            });
+            
+            // Show disclaimer when results are rendered
+            document.getElementById('analysis-disclaimer').classList.remove('hidden');
+        }
+
+        function copyAnalysisText() {
+            if (currentAnalysisRawText) {
+                navigator.clipboard.writeText(currentAnalysisRawText).then(() => notify('Relatório copiado!', 'success'));
+            }
+        }
+
+        function requestDelete(id) { pendingDeleteId = id; openModal('confirm-delete-modal'); }
+        async function performDelete() {
+            closeModal('confirm-delete-modal');
+            try {
+                await fetch(`${API_URL}/api/documents/${pendingDeleteId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+                loadDocuments();
+            } catch (err) { notify('Erro ao excluir', 'error'); }
+        }
+        document.getElementById('confirm-delete-btn').onclick = performDelete;
+
+        function toggleProfileMenu() { document.getElementById('profile-menu').classList.toggle('hidden-scale'); }
+        function openUploadModal() { 
+            document.getElementById('new-doc-name').value = ''; selectedFiles = []; 
+            document.getElementById('photo-count').innerText = 0; renderPreviews(); openModal('upload-modal'); 
+        }
+        const MODAL_IDS = ['analysis-modal', 'plans-modal', 'upload-modal', 'camera-modal', 'scanner-modal', 'confirm-delete-modal'];
+        let openModalsCount = 0;
+
+        function openModal(id) {
+            document.getElementById(id).classList.remove('opacity-0', 'pointer-events-none');
+            if (MODAL_IDS.includes(id)) {
+                openModalsCount++;
+                syncBannerVisibility();
+            }
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.add('opacity-0', 'pointer-events-none');
+            if (MODAL_IDS.includes(id)) {
+                openModalsCount = Math.max(0, openModalsCount - 1);
+                syncBannerVisibility();
+            }
+            const scrollableArea = document.querySelector(`#${id} .overflow-y-auto`);
+            if (scrollableArea) scrollableArea.scrollTop = 0;
+            if (id === 'plans-modal') {
+                updatePlanButtons();
+            }
+        }
+        function logout() { dashboardVisible = false; syncBannerVisibility(); localStorage.clear(); location.reload(); }
+        window.onclick = function(e) { if (!e.target.closest('nav')) { const m = document.getElementById('profile-menu'); if(m) m.classList.add('hidden-scale'); } }
+    </script>
+</body>
+</html>
