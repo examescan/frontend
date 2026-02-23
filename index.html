@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="color-scheme" content="light dark">
+    <meta name="color-scheme" content="dark">
     <title>ExamScan - Scanner Médico</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -117,6 +117,7 @@
             font-size: 9rem;
             font-weight: 800;
             letter-spacing: -0.05em;
+            color: #ffffff; /* Fallback sólido */
             background: linear-gradient(to right, #ffffff 20%, #3B82F6 50%, #ffffff 80%);
             background-size: 200% auto;
             -webkit-background-clip: text;
@@ -141,7 +142,6 @@
             margin: 0;
         }
 
-        /* Seção Prova Social SLIM */
         .social-proof-slim {
             padding: 20px 0; 
             text-align: center;
@@ -169,10 +169,11 @@
             font-variant-numeric: tabular-nums;
             display: inline-block;
             min-width: 65px;
-            color: #fff;
+            color: #ffffff;
         }
 
         .counter-glow.finished {
+            color: #ffffff; /* Fallback sólido */
             background: linear-gradient(to right, #ffffff 20%, #3B82F6 50%, #ffffff 80%);
             background-size: 200% auto;
             -webkit-background-clip: text;
@@ -181,7 +182,6 @@
             filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.6));
         }
 
-        /* Background Motion Design - Ícones flutuando na Prova Social */
         .floating-icons-bg {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -227,11 +227,11 @@
             50% { transform: translateY(70px); opacity: 0.8; }
         }
 
-        /* Padronização Elegante dos Títulos de Seção */
         .section-header-title {
             font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 40px;
+            color: #ffffff; /* Fallback */
             background: linear-gradient(135deg, #ffffff 0%, #9CA3AF 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -252,7 +252,6 @@
             align-items: center;
             justify-content: center;
             position: relative;
-
         }
 
         .billboard-slide {
@@ -276,7 +275,6 @@
             pointer-events: auto;
         }
 
-        /* Animação otimizada para os ícones principais dos slides */
         .icon-alive {
             will-change: transform;
             animation: alive-bounce 3s ease-in-out infinite;
@@ -291,6 +289,7 @@
             font-size: 1.8rem;
             font-weight: 700;
             margin-bottom: 8px;
+            color: #ffffff;
             background: linear-gradient(to bottom, #fff, #94a3b8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -362,9 +361,8 @@
 
         .btn-floating.visible { transform: translateY(0); opacity: 1; }
 
-        /* Estilos da Seção Processo Simplificado - Slim & Harmonizada */
         .continuous-motion-section { 
-            padding: 60px 0; /* Reduzido de 100px para deixar slim */
+            padding: 60px 0; 
             text-align: center; 
         }
         .cm-container { padding: 0; background: transparent; border: none; }
@@ -413,9 +411,6 @@
         @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
         @keyframes shine { to { background-position: 200% center; } }
 
-        /* ==============================
-           SEÇÃO: O QUE É O EXAMESCAN
-        ============================== */
         .explainer-section {
             padding: 100px 0 80px;
             position: relative;
@@ -469,17 +464,19 @@
             letter-spacing: -0.04em;
             line-height: 1.1;
             margin-bottom: 0;
-            color: #fff;
+            color: #ffffff;
             max-width: 700px;
         }
 
         .explainer-headline .hl-muted {
+            color: #ffffff; /* Fallback */
             background: linear-gradient(to right, #ffffff 0%, #94A3B8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .explainer-headline .hl-blue {
+            color: #3B82F6; /* Fallback */
             background: linear-gradient(135deg, #60a5fa 0%, #3B82F6 50%, #93c5fd 100%);
             background-size: 200% auto;
             -webkit-background-clip: text;
@@ -534,6 +531,7 @@
             font-size: 2rem;
             font-weight: 800;
             letter-spacing: -0.04em;
+            color: #ffffff;
             background: linear-gradient(to right, #fff 0%, #60a5fa 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -546,7 +544,6 @@
             text-transform: uppercase;
         }
 
-        /* Painel visual direito */
         .explainer-visual {
             position: relative;
         }
@@ -592,7 +589,6 @@
             padding: 20px;
         }
 
-        /* Lado ANTES */
         .exv-before {
             border-color: rgba(255,255,255,0.08);
             margin-bottom: 14px;
@@ -642,7 +638,6 @@
             user-select: none;
         }
 
-        /* Seta de transformação */
         .exv-arrow-wrapper {
             display: flex;
             align-items: center;
@@ -672,7 +667,6 @@
             white-space: nowrap;
         }
 
-        /* Lado DEPOIS */
         .exv-after {
             border-color: rgba(59,130,246,0.2);
         }
@@ -759,9 +753,6 @@
 
         .explainer-badge i { color: #60A5FA; }
 
-        /* ==============================
-           NOVA SEÇÃO: SEGURANÇA SLIM
-        ============================== */
         .trust-banner {
             margin: 20px auto 40px;
             padding: 24px 40px;
@@ -1174,7 +1165,6 @@
     <script>
         lucide.createIcons();
 
-        // --- Lógica do Contador Social ---
         const counterEl = document.getElementById('socialCounter');
         let counterStarted = false;
 
@@ -1198,7 +1188,6 @@
             requestAnimationFrame(update);
         }
 
-        // --- Fundo de Ícones (Slim Motion) ---
         const iconCanvas = document.getElementById('iconCanvas');
         const iconTypes = ['heart', 'activity', 'pill', 'syringe', 'dna', 'thermometer'];
         
@@ -1225,7 +1214,6 @@
         }
         setInterval(spawnIcon, 800);
 
-        // --- Slideshow Principal ---
         const slides = document.querySelectorAll('.billboard-slide');
         let currentSlide = 0;
         const speed = 2500; 
@@ -1237,14 +1225,12 @@
         }
         setInterval(nextSlide, speed);
 
-        // --- Botão Flutuante ---
         const floatingCta = document.getElementById('floatingCta');
         window.addEventListener('scroll', () => {
             if (window.scrollY > 400) { floatingCta.classList.add('visible'); } 
             else { floatingCta.classList.remove('visible'); }
         });
 
-        // --- Intersection Observer ---
         const observerOptions = { threshold: 0.2 };
 
         const observer = new IntersectionObserver((entries) => {
