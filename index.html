@@ -412,6 +412,130 @@
         @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
         @keyframes shine { to { background-position: 200% center; } }
 
+        /* ============================================================
+           SAMSUNG INTERNET / FORCED DARK MODE OVERRIDE
+           Re-afirma todas as cores com !important para impedir que
+           qualquer navegador sobrescreva o esquema de cores da página.
+           ============================================================ */
+        @media (prefers-color-scheme: dark) {
+            html, body {
+                background-color: #050505 !important;
+                color: #FFFFFF !important;
+                filter: none !important;
+                -webkit-filter: none !important;
+            }
+            body {
+                background: linear-gradient(135deg, #050505 0%, #080a0f 50%, #050505 100%) !important;
+            }
+            h1, h2, h3, h4, h5, h6, p, span, a, li, td, th, label {
+                color: inherit !important;
+            }
+            h1.main-title {
+                color: #ffffff !important;
+                background: linear-gradient(to right, #ffffff 20%, #3B82F6 50%, #ffffff 80%) !important;
+                background-size: 200% auto !important;
+                -webkit-background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+            }
+            p.subhead { color: #E2E8F0 !important; }
+            .nav-logo { color: #9CA3AF !important; }
+            .nav-logo:hover { color: #fff !important; }
+            .login-link { color: #9CA3AF !important; }
+            .social-proof-slim {
+                background: rgba(0, 0, 0, 0.3) !important;
+                border-color: rgba(255, 255, 255, 0.05) !important;
+            }
+            .social-proof-content { color: #CBD5E1 !important; }
+            .counter-glow { color: #ffffff !important; }
+            .counter-glow.finished {
+                background: linear-gradient(to right, #ffffff 20%, #3B82F6 50%, #ffffff 80%) !important;
+                background-size: 200% auto !important;
+                -webkit-background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+            }
+            .glass {
+                background: rgba(255, 255, 255, 0.03) !important;
+                border-color: rgba(255, 255, 255, 0.06) !important;
+            }
+            .btn-main {
+                background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+                color: #fff !important;
+                border-color: rgba(59, 130, 246, 0.3) !important;
+            }
+            .btn-floating {
+                background: #3B82F6 !important;
+                color: #ffffff !important;
+            }
+            .slide-title {
+                background: linear-gradient(to bottom, #fff, #94a3b8) !important;
+                -webkit-background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+            }
+            .slide-desc { color: #94A3B8 !important; }
+            .section-header-title {
+                background: linear-gradient(135deg, #ffffff 0%, #9CA3AF 100%) !important;
+                -webkit-background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+            }
+            .copy-snippet {
+                background: rgba(0,0,0,0.6) !important;
+                color: #A5F3FC !important;
+                border-color: #3B82F6 !important;
+            }
+            .bento-title { color: #fff !important; }
+            .bento-text { color: #94A3B8 !important; }
+            .bento-card { border-color: rgba(255, 255, 255, 0.06) !important; }
+            .explainer-eyebrow { color: #60A5FA !important; }
+            .explainer-headline { color: #ffffff !important; }
+            .explainer-para { color: #CBD5E1 !important; }
+            .explainer-para strong { color: #fff !important; }
+            .explainer-stat-num {
+                background: linear-gradient(to right, #fff 0%, #60a5fa 100%) !important;
+                -webkit-background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+            }
+            .explainer-stat-label { color: #94A3B8 !important; }
+            .explainer-badge { color: #CBD5E1 !important; }
+            .hl-muted {
+                background: linear-gradient(to right, #ffffff 0%, #94A3B8 100%) !important;
+                -webkit-background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+            }
+            .hl-blue {
+                background: linear-gradient(135deg, #60a5fa 0%, #3B82F6 50%, #93c5fd 100%) !important;
+                -webkit-background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+            }
+            .exv-card {
+                background: rgba(255, 255, 255, 0.03) !important;
+                border-color: rgba(255, 255, 255, 0.1) !important;
+            }
+            .exv-header-label { color: #94A3B8 !important; }
+            .exv-result-key { color: #94A3B8 !important; }
+            .exv-result-val { color: #fff !important; }
+            .exv-result-val.ok { color: #34d399 !important; }
+            .exv-result-val.warn { color: #fbbf24 !important; }
+            .exv-scanned-text { color: rgba(255,255,255,0.3) !important; }
+            .exv-copy-btn { color: #60A5FA !important; }
+            .cm-col h4 { color: #fff !important; }
+            .cm-col p { color: #94A3B8 !important; }
+            .cm-icon-wrapper {
+                background: rgba(255, 255, 255, 0.04) !important;
+                border-color: rgba(255, 255, 255, 0.06) !important;
+            }
+            .cm-packet { background: #050505 !important; color: #3B82F6 !important; }
+            .trust-banner {
+                background: rgba(59, 130, 246, 0.05) !important;
+                border-color: rgba(59, 130, 246, 0.15) !important;
+            }
+            .trust-text h4 { color: #F8FAFC !important; }
+            .trust-text p { color: #94A3B8 !important; }
+            .trust-icon {
+                background: rgba(59, 130, 246, 0.15) !important;
+                color: #60A5FA !important;
+            }
+        }
+
         .explainer-section {
             padding: 100px 0 80px;
             position: relative;
