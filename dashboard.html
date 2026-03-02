@@ -743,12 +743,40 @@
             color: rgba(96,165,250,0.7) !important;
             border: 1px solid rgba(59,130,246,0.18) !important;
         }
+        .plan-btn-unavailable {
+            background: transparent !important;
+            color: rgba(156,163,175,0.4) !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
         .plan-col-available {
             border-color: rgba(59,130,246,0.25) !important;
             box-shadow: 0 0 30px rgba(59,130,246,0.07), inset 0 0 30px rgba(59,130,246,0.03);
         }
         .plan-btn-glow {
             box-shadow: 0 0 18px rgba(59,130,246,0.45) !important;
+        }
+
+        #plans-grid-clip { overflow: hidden; }
+
+        @keyframes plans-out-left  { from { transform: translateX(0);    opacity: 1; } to { transform: translateX(-48px); opacity: 0; } }
+        @keyframes plans-out-right { from { transform: translateX(0);    opacity: 1; } to { transform: translateX( 48px); opacity: 0; } }
+        @keyframes plans-in-left   { from { transform: translateX(-48px); opacity: 0; } to { transform: translateX(0);    opacity: 1; } }
+        @keyframes plans-in-right  { from { transform: translateX( 48px); opacity: 0; } to { transform: translateX(0);    opacity: 1; } }
+
+        .plans-out-left  { animation: plans-out-left  0.2s ease-in  forwards; }
+        .plans-out-right { animation: plans-out-right 0.2s ease-in  forwards; }
+        .plans-in-left   { animation: plans-in-left   0.26s ease-out forwards; }
+        .plans-in-right  { animation: plans-in-right  0.26s ease-out forwards; }
+
+        @keyframes discount-glow-pulse {
+            0%   { color: #4ade80; text-shadow: none; }
+            35%  { color: #bbf7d0; text-shadow: 0 0 6px rgba(74,222,128,0.95), 0 0 14px rgba(74,222,128,0.7), 0 0 28px rgba(74,222,128,0.4); }
+            70%  { color: #4ade80; text-shadow: none; }
+            100% { color: #4ade80; text-shadow: none; }
+        }
+        .discount-glow-anim {
+            animation: discount-glow-pulse 0.75s ease-in-out 3;
         }
     </style>
 
@@ -773,6 +801,7 @@
                 </div>
             </div>
 
+            <div id="plans-grid-clip">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="plans-grid">
 
                 <!-- FREE -->
@@ -858,8 +887,12 @@
                 </div>
 
             </div>
+            </div><!-- /plans-grid-clip -->
 
-            <p class="text-white text-[10px] mt-4 tracking-wide opacity-100">Cancele quando quiser · Sem multa</p>
+            <div class="flex flex-col items-start gap-2 mt-4">
+                <div id="current-plan-label" class="text-gray-500 text-[11px] tracking-wide leading-none"></div>
+                <p class="text-white text-[10px] tracking-wide opacity-100 m-0 leading-none" style="padding-left:10px;">Cancele quando quiser · Sem multa</p>
+            </div>
 
             <div id="checkout-container" class="hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div class="text-center mb-8">
@@ -1555,14 +1588,37 @@
             document.getElementById('qr-display-area').classList.add('hidden');
         }
 
+        function animateBillingChange(toMode, updateFn) {
+            const grid = document.getElementById('plans-grid');
+            // Anual = left, Mensal = right on the toggle
+            // → going to mensal (right): old content exits LEFT, new enters from RIGHT
+            // → going to anual  (left):  old content exits RIGHT, new enters from LEFT
+            const outClass = toMode === 'mensal' ? 'plans-out-left'  : 'plans-out-right';
+            const inClass  = toMode === 'mensal' ? 'plans-in-right'  : 'plans-in-left';
+            grid.classList.add(outClass);
+            grid.addEventListener('animationend', function onOut() {
+                grid.classList.remove(outClass);
+                updateFn();
+                grid.classList.add(inClass);
+                grid.addEventListener('animationend', function onIn() {
+                    grid.classList.remove(inClass);
+                }, { once: true });
+            }, { once: true });
+        }
+
         function toggleBilling() {
-            const toggle = document.getElementById('period-selector');
-            currentBilling = currentBilling === 'anual' ? 'mensal' : 'anual';
-            toggle.classList.toggle('mensal', currentBilling === 'mensal');
-            toggle.classList.toggle('toggled', currentBilling === 'mensal');
-            document.getElementById('price-basic').innerText = currentBilling === 'anual' ? 'R$ 29' : 'R$ 39';
-            document.getElementById('price-pro').innerText = currentBilling === 'anual' ? 'R$ 59' : 'R$ 79';
-            updatePlanButtons();
+            const toggle  = document.getElementById('period-selector');
+            const toMode  = currentBilling === 'anual' ? 'mensal' : 'anual';
+            // Flip the toggle UI immediately so it feels responsive
+            toggle.classList.toggle('toggled', toMode === 'mensal');
+            document.getElementById('label-anual').classList.toggle('active',  toMode === 'anual');
+            document.getElementById('label-mensal').classList.toggle('active', toMode === 'mensal');
+            animateBillingChange(toMode, () => {
+                currentBilling = toMode;
+                document.getElementById('price-basic').innerText = toMode === 'anual' ? 'R$ 29' : 'R$ 39';
+                document.getElementById('price-pro').innerText   = toMode === 'anual' ? 'R$ 59' : 'R$ 79';
+                updatePlanButtons();
+            });
         }
 
         function updatePlanButtons() {
@@ -1603,6 +1659,8 @@
             });
         }
 
+        let plansSwitchTimer = null;
+
         async function openPlansModal() {
             hideCheckout(); 
             try {
@@ -1626,7 +1684,41 @@
                 document.getElementById('price-pro').innerText   = userIsMonthly ? 'R$ 79' : 'R$ 59';
 
                 updatePlanButtons();
+
+                // Current plan label
+                const planNames = ['Gratuito', 'Essencial', 'Pro'];
+                const planName  = planNames[userSubscriptionData.plan] || 'Gratuito';
+                const intervalLabel = userSubscriptionData.plan === 0 ? '' : (userSubscriptionData.interval === 'month' ? 'mensal' : 'anual');
+                const labelEl = document.getElementById('current-plan-label');
+                if (intervalLabel) {
+                    labelEl.innerHTML = `<span style="display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);vertical-align:middle;"><span style="color:white;">Plano atual:</span><span style="color:#60a5fa;">${planName} (${intervalLabel})</span></span>`;
+                } else {
+                    labelEl.innerHTML = `<span style="display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);vertical-align:middle;"><span style="color:white;">Plano atual:</span><span style="color:#60a5fa;">${planName}</span></span>`;
+                }
+
                 openModal('plans-modal');
+
+                // If user is on monthly plan, show their plan then nudge to annual
+                clearTimeout(plansSwitchTimer);
+                if (userIsMonthly) {
+                    plansSwitchTimer = setTimeout(() => {
+                        const badge = document.querySelector('#label-anual em');
+                        if (badge) badge.classList.add('discount-glow-anim');
+                        setTimeout(() => {
+                            if (badge) badge.classList.remove('discount-glow-anim');
+                            const t = document.getElementById('period-selector');
+                            t.classList.remove('toggled');
+                            document.getElementById('label-anual').classList.add('active');
+                            document.getElementById('label-mensal').classList.remove('active');
+                            animateBillingChange('anual', () => {
+                                currentBilling = 'anual';
+                                document.getElementById('price-basic').innerText = 'R$ 29';
+                                document.getElementById('price-pro').innerText   = 'R$ 59';
+                                updatePlanButtons();
+                            });
+                        }, 2250); // glow duration: 3 × 0.75s
+                    }, 2000); // 2s after open, glow starts
+                }
             } catch (err) { notify('Erro ao carregar planos', 'error'); }
         }
 
@@ -2287,6 +2379,7 @@
             const scrollableArea = document.querySelector(`#${id} .overflow-y-auto`);
             if (scrollableArea) scrollableArea.scrollTop = 0;
             if (id === 'plans-modal') {
+                clearTimeout(plansSwitchTimer);
                 updatePlanButtons();
             }
         }
