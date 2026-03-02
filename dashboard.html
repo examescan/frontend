@@ -1463,6 +1463,16 @@
 
         if (token) showDashboard();
 
+        // Auto-switch to register mode if ?criarConta=true is in the URL
+        if (new URLSearchParams(window.location.search).get('criarConta') === 'true') {
+            isLogin = false;
+            document.getElementById('auth-title').innerText = 'Crie sua conta';
+            document.getElementById('toggle-text').innerText = 'Já tenho uma conta';
+            document.getElementById('auth-submit-btn').innerText = 'Criar conta';
+            document.getElementById('confirm-password-field').classList.remove('hidden');
+            document.getElementById('forgot-password-area').classList.add('hidden');
+        }
+
         function toggleAuthMode() {
             isLogin = !isLogin;
             document.getElementById('auth-title').innerText = isLogin ? 'ExameScan' : 'Crie sua conta';
