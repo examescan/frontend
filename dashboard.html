@@ -1908,10 +1908,7 @@
             checkoutDiv.innerHTML = "";
             if (checkoutInstance) checkoutInstance.destroy();
             try {
-                checkoutInstance = await stripe.initEmbeddedCheckout({
-                    clientSecret,
-                    appearance: { theme: 'night' }
-                });
+                checkoutInstance = await stripe.initEmbeddedCheckout({ clientSecret });
                 checkoutInstance.mount('#checkout');
             } catch (e) { notify("Erro ao inicializar checkout", "error"); hideCheckout(); }
         }
