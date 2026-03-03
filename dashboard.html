@@ -905,7 +905,70 @@
                     <h3 class="text-2xl font-bold text-white">Finalizar Assinatura</h3>
                     <p class="text-gray-400 text-sm">Pagamento seguro processado pelo Stripe.</p>
                 </div>
-                <div id="checkout" class="min-h-[450px]"></div>
+
+                <!-- Wrapper: overlay + stripe iframe live side by side, overlay on top -->
+                <div style="position:relative; min-height:450px;">
+
+                    <!-- Our skeleton overlay — sits on top while Stripe renders behind -->
+                    <div id="checkout-loading" style="
+                        position:absolute; inset:0; z-index:10;
+                        display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;
+                        background: rgba(10,10,12,0.0);
+                        transition: opacity 0.4s ease;
+                    ">
+                        <!-- Progress bar (indeterminate, top) -->
+                        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;">
+                            <div id="checkout-progress-bar" style="
+                                height:100%;
+                                width:35%;
+                                background:linear-gradient(to right, transparent, #3b82f6, #60a5fa, transparent);
+                                border-radius:2px;
+                                animation: checkout-bar-slide 1.8s ease-in-out infinite;
+                            "></div>
+                        </div>
+
+                        <!-- Lock icon + cycling message -->
+                        <div class="flex flex-col items-center gap-3">
+                            <div id="checkout-lock-icon" style="
+                                width:44px; height:44px; border-radius:14px;
+                                background:rgba(59,130,246,0.1);
+                                border:1px solid rgba(59,130,246,0.25);
+                                display:flex; align-items:center; justify-content:center;
+                                color:#60a5fa;
+                                animation: checkout-lock-pulse 2s ease-in-out infinite;
+                            ">
+                                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 11V7a5 5 0 0110 0v4"/>
+                                </svg>
+                            </div>
+                            <p id="checkout-loading-msg" class="text-sm text-gray-400 font-medium" style="transition:opacity 0.4s ease; min-height:20px;">Verificando seu plano...</p>
+                        </div>
+
+                        <!-- Skeleton blocks -->
+                        <div class="w-full max-w-sm space-y-3 mt-1">
+                            <div class="shimmer h-10 rounded-xl w-full"></div>
+                            <div class="shimmer h-10 rounded-xl w-full"></div>
+                            <div class="shimmer h-10 rounded-xl w-3/4"></div>
+                            <div class="shimmer h-12 rounded-xl w-full mt-4"></div>
+                        </div>
+                    </div>
+
+                    <style>
+                        @keyframes checkout-bar-slide {
+                            0%   { transform: translateX(-120%); }
+                            100% { transform: translateX(340%); }
+                        }
+                        @keyframes checkout-lock-pulse {
+                            0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0); border-color: rgba(59,130,246,0.25); }
+                            50%      { box-shadow: 0 0 16px 4px rgba(59,130,246,0.2); border-color: rgba(59,130,246,0.55); }
+                        }
+                    </style>
+
+                    <!-- Stripe mounts here — invisible until iframe fires load -->
+                    <div id="checkout" style="opacity:0; transition: opacity 0.4s ease; min-height:450px;"></div>
+                </div>
+
                 <button onclick="hideCheckout()" class="mt-8 w-full text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 hover:text-red-400 transition-colors">Voltar aos planos</button>
             </div>
         </div>
@@ -1898,19 +1961,107 @@
             finally { btn.disabled = false; btn.innerText = originalText; }
         }
 
+        let checkoutIsInitializing = false;
+
+        // Waits for Stripe's iframe to fire its load event, then resolves.
+        // Falls back after maxWait ms so we never block forever.
+        function waitForStripeIframe(maxWait = 20000) {
+            return new Promise((resolve) => {
+                const checkoutDiv = document.getElementById('checkout');
+                let fallback = setTimeout(resolve, maxWait);
+
+                const observer = new MutationObserver(() => {
+                    const iframe = checkoutDiv.querySelector('iframe');
+                    if (!iframe) return;
+                    observer.disconnect();
+                    // iframe may already be loaded by the time we observe it
+                    if (iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
+                        clearTimeout(fallback);
+                        resolve();
+                    } else {
+                        iframe.addEventListener('load', () => { clearTimeout(fallback); resolve(); }, { once: true });
+                    }
+                });
+                observer.observe(checkoutDiv, { childList: true, subtree: true });
+            });
+        }
+
         async function initStripeCheckout(clientSecret) {
+            if (checkoutIsInitializing) return;
+            checkoutIsInitializing = true;
+
+            if (checkoutInstance) {
+                try { checkoutInstance.destroy(); } catch (_) {}
+                checkoutInstance = null;
+            }
+
+            // Hide plans, show checkout container — our overlay is already on top
             document.getElementById('plans-grid').classList.add('hidden');
             document.getElementById('plans-header').classList.add('hidden');
             document.getElementById('period-area').classList.add('hidden');
             document.getElementById('plans-footer-info').classList.add('hidden');
             document.getElementById('checkout-container').classList.remove('hidden');
-            const checkoutDiv = document.getElementById('checkout');
-            checkoutDiv.innerHTML = "";
-            if (checkoutInstance) checkoutInstance.destroy();
+
+            // Reset overlay and stripe div to initial state
+            const loadingEl = document.getElementById('checkout-loading');
+            const checkoutEl = document.getElementById('checkout');
+            loadingEl.style.opacity = '1';
+            loadingEl.style.pointerEvents = 'auto';
+            checkoutEl.style.opacity = '0';
+            checkoutEl.innerHTML = '';
+            const msgEl = document.getElementById('checkout-loading-msg'); msgEl.style.transition = 'opacity 0.3s ease'; msgEl.style.opacity = '1'; msgEl.innerText = 'Conectando ao servidor do Stripe...';
+
+            const loadingPhrases = [
+                'Conectando ao servidor do Stripe...',
+                'Validando credenciais de segurança...',
+                'Estabelecendo sessão criptografada...',
+                'Verificando certificados SSL...',
+                'Carregando ambiente de pagamento seguro...',
+                'Autenticando chaves de criptografia...',
+                'Sincronizando dados da assinatura...',
+                'Inicializando gateway de pagamento...',
+                'Verificando conformidade PCI DSS...',
+                'Configurando canal seguro de dados...',
+                'Obtendo token de sessão...',
+                'Validando método de pagamento...',
+                'Aguardando confirmação do servidor...',
+                'Preparando interface de pagamento...',
+                'Quase pronto...',
+            ];
+            let phraseIndex = 0;
+            const phraseInterval = setInterval(() => {
+                phraseIndex++;
+                const el = document.getElementById('checkout-loading-msg');
+                if (el && phraseIndex < loadingPhrases.length) {
+                    el.style.opacity = '0';
+                    setTimeout(() => {
+                        if (el) { el.innerText = loadingPhrases[phraseIndex]; el.style.opacity = '1'; }
+                    }, 300);
+                }
+            }, 3000);
+
             try {
                 checkoutInstance = await stripe.initEmbeddedCheckout({ clientSecret });
+
+                // Mount Stripe FIRST — it starts rendering behind our overlay
                 checkoutInstance.mount('#checkout');
-            } catch (e) { notify("Erro ao inicializar checkout", "error"); hideCheckout(); }
+
+                // Wait until the Stripe iframe actually fires load
+                await waitForStripeIframe();
+                clearInterval(phraseInterval);
+
+                // Crossfade: overlay fades out, stripe form fades in simultaneously
+                checkoutEl.style.opacity = '1';
+                loadingEl.style.opacity = '0';
+                loadingEl.style.pointerEvents = 'none';
+
+            } catch (e) {
+                clearInterval(phraseInterval);
+                notify('Erro ao carregar o checkout. Tente novamente.', 'error');
+                hideCheckout();
+            } finally {
+                checkoutIsInitializing = false;
+            }
         }
 
         function hideCheckout() {
@@ -1919,7 +2070,13 @@
             document.getElementById('period-area').classList.remove('hidden');
             document.getElementById('plans-footer-info').classList.remove('hidden');
             document.getElementById('checkout-container').classList.add('hidden');
-            if (checkoutInstance) { checkoutInstance.destroy(); checkoutInstance = null; }
+            // Reset overlay for next open
+            const loadingEl = document.getElementById('checkout-loading');
+            if (loadingEl) { loadingEl.style.opacity = '1'; loadingEl.style.pointerEvents = 'auto'; }
+            const checkoutEl = document.getElementById('checkout');
+            if (checkoutEl) { checkoutEl.style.opacity = '0'; checkoutEl.innerHTML = ''; }
+            checkoutIsInitializing = false;
+            if (checkoutInstance) { try { checkoutInstance.destroy(); } catch(_) {} checkoutInstance = null; }
         }
 
         function showDashboard() {
