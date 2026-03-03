@@ -895,7 +895,7 @@
             </div>
             </div><!-- /plans-grid-clip -->
 
-            <div class="flex flex-col items-start gap-2 mt-4">
+            <div id="plans-footer-info" class="flex flex-col items-start gap-2 mt-4">
                 <div id="current-plan-label" class="text-gray-500 text-[11px] tracking-wide leading-none"></div>
                 <p class="text-white text-[10px] tracking-wide opacity-100 m-0 leading-none" style="padding-left:10px;">Cancele quando quiser · Sem multa</p>
             </div>
@@ -1902,12 +1902,16 @@
             document.getElementById('plans-grid').classList.add('hidden');
             document.getElementById('plans-header').classList.add('hidden');
             document.getElementById('period-area').classList.add('hidden');
+            document.getElementById('plans-footer-info').classList.add('hidden');
             document.getElementById('checkout-container').classList.remove('hidden');
             const checkoutDiv = document.getElementById('checkout');
             checkoutDiv.innerHTML = "";
             if (checkoutInstance) checkoutInstance.destroy();
             try {
-                checkoutInstance = await stripe.initEmbeddedCheckout({ clientSecret });
+                checkoutInstance = await stripe.initEmbeddedCheckout({
+                    clientSecret,
+                    appearance: { theme: 'night' }
+                });
                 checkoutInstance.mount('#checkout');
             } catch (e) { notify("Erro ao inicializar checkout", "error"); hideCheckout(); }
         }
@@ -1916,6 +1920,7 @@
             document.getElementById('plans-grid').classList.remove('hidden');
             document.getElementById('plans-header').classList.remove('hidden');
             document.getElementById('period-area').classList.remove('hidden');
+            document.getElementById('plans-footer-info').classList.remove('hidden');
             document.getElementById('checkout-container').classList.add('hidden');
             if (checkoutInstance) { checkoutInstance.destroy(); checkoutInstance = null; }
         }
