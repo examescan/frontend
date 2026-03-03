@@ -590,6 +590,12 @@
                             </div>
                             <span class="text-xs font-bold uppercase tracking-widest">Planos e Upgrade</span>
                         </button>
+                        <button onclick="openSettingsModal()" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-gray-300 group">
+                            <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white/15 transition-colors">
+                                <svg class="w-4 h-4 text-gray-400 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            </div>
+                            <span class="text-xs font-bold uppercase tracking-widest">Configurações</span>
+                        </button>
                         <button onclick="logout()" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-red-500/10 transition-all text-red-400 group">
                             <div class="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center group-hover:bg-red-500 transition-colors">
                                 <svg class="w-4 h-4 text-red-500 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
@@ -975,6 +981,118 @@
                 <button onclick="closeModal('confirm-delete-modal')" class="flex-1 py-5 bg-white/5 hover:bg-white/10 text-gray-300 rounded-2xl font-bold text-[11px] uppercase transition-colors">Manter</button>
                 <button id="confirm-delete-btn" class="flex-1 py-5 bg-red-600 hover:bg-red-500 text-white rounded-2xl font-bold text-[11px] uppercase shadow-lg shadow-red-900/30 transition-colors">Excluir</button>
             </div>
+        </div>
+    </div>
+
+    <style>
+        .settings-avatar {
+            width: 72px; height: 72px; border-radius: 50%;
+            background: linear-gradient(135deg, rgba(59,130,246,0.25) 0%, rgba(59,130,246,0.08) 100%);
+            border: 1.5px solid rgba(59,130,246,0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem; font-weight: 800; color: #93c5fd;
+            letter-spacing: -0.02em;
+            box-shadow: 0 0 28px rgba(59,130,246,0.15), inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+        .settings-info-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .settings-info-row:last-child { border-bottom: none; }
+        .settings-label {
+            font-size: 10px; font-weight: 700; color: #4b5563;
+            text-transform: uppercase; letter-spacing: 0.12em;
+        }
+        .settings-value {
+            font-size: 13px; font-weight: 600; color: #e2e8f0;
+            text-align: right; max-width: 200px; overflow: hidden;
+            text-overflow: ellipsis; white-space: nowrap;
+        }
+        .settings-plan-pill {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 3px 10px 3px 8px; border-radius: 100px;
+            font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
+        }
+        .settings-plan-pill.free {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #9ca3af;
+        }
+        .settings-plan-pill.paid {
+            background: rgba(59,130,246,0.12);
+            border: 1px solid rgba(59,130,246,0.28);
+            color: #60a5fa;
+            box-shadow: 0 0 12px rgba(59,130,246,0.1);
+        }
+        .settings-plan-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+        }
+        .settings-plan-pill.free .settings-plan-dot { background: #6b7280; }
+        .settings-plan-pill.paid .settings-plan-dot { background: #3b82f6; box-shadow: 0 0 6px #3b82f6; }
+        .settings-period-chip {
+            font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;
+            padding: 2px 7px; border-radius: 100px; margin-left: 4px;
+            background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.25); color: #34d399;
+        }
+        .settings-password-btn {
+            width: 100%; padding: 15px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #9ca3af; font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            cursor: pointer; text-decoration: none;
+            transition: all 0.25s cubic-bezier(0.16,1,0.3,1);
+        }
+        .settings-password-btn:hover {
+            background: rgba(59,130,246,0.1);
+            border-color: rgba(59,130,246,0.35);
+            color: #fff;
+            box-shadow: 0 0 18px rgba(59,130,246,0.1);
+        }
+        .settings-password-btn:hover svg { color: #60a5fa; }
+        .settings-password-btn svg { color: #4b5563; transition: color 0.25s; }
+    </style>
+
+    <div id="settings-modal" class="modal opacity-0 pointer-events-none fixed inset-0 z-[110] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeModal('settings-modal')"></div>
+        <div class="glass-modal w-full max-w-sm rounded-[2.5rem] shadow-2xl relative z-10 border border-white/10 overflow-hidden">
+
+            <!-- Top accent glow -->
+            <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:160px;height:1px;background:linear-gradient(to right,transparent,rgba(59,130,246,0.6),transparent);"></div>
+
+            <!-- Header -->
+            <div class="px-8 pt-8 pb-6 flex flex-col items-center text-center" style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                <div class="settings-avatar mb-4" id="settings-avatar-initials">?</div>
+                <p id="settings-email" class="text-sm font-semibold text-white truncate max-w-[230px]">—</p>
+                <p class="text-[10px] text-gray-600 mt-1 font-medium">Conta ExameScan</p>
+            </div>
+
+            <!-- Plan row -->
+            <div class="px-8 py-5" style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                <div class="flex items-center justify-center gap-3">
+                    <span class="settings-label" style="color:#9ca3af;">Plano atual:</span>
+                    <span id="settings-plan-pill" class="settings-plan-pill free">
+                        <span class="settings-plan-dot"></span>
+                        <span id="settings-plan-name">—</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Password button -->
+            <div class="px-8 py-6">
+                <a href="/forgotpassword" class="settings-password-btn">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>
+                    Mudar Senha
+                </a>
+            </div>
+
+            <!-- Close button -->
+            <button onclick="closeModal('settings-modal')" style="position:absolute;top:20px;right:20px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;color:#6b7280;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.color='#6b7280'">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
         </div>
     </div>
 
@@ -1661,6 +1779,43 @@
 
         let plansSwitchTimer = null;
 
+        async function openSettingsModal() {
+            // Populate email + avatar initials
+            const email = localStorage.getItem('userEmail') || '—';
+            document.getElementById('settings-email').innerText = email;
+            const initials = email !== '—' ? email.split('@')[0].slice(0, 2).toUpperCase() : '?';
+            document.getElementById('settings-avatar-initials').innerText = initials;
+
+            // Reset plan UI
+            const planEl  = document.getElementById('settings-plan-name');
+            const pillEl  = document.getElementById('settings-plan-pill');
+            planEl.innerText = '...';
+            pillEl.className = 'settings-plan-pill free';
+
+            try {
+                const res  = await fetch(`${API_URL}/api/subscription`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                const planNum   = data.subscription_plan || 0;
+                const planNames = ['Gratuito', 'Essencial', 'Pro'];
+                const planName  = planNames[planNum] || 'Gratuito';
+
+                if (planNum > 0) {
+                    pillEl.className = 'settings-plan-pill paid';
+                    const rawInterval = ((data.subscription && data.subscription.interval) || data.subscription_interval || '').toLowerCase();
+                    const isMonthly   = rawInterval.startsWith('month') || rawInterval === 'mensal';
+                    planEl.innerText  = `${planName} (${isMonthly ? 'Mensal' : 'Anual'})`;
+                } else {
+                    planEl.innerText = planName;
+                }
+            } catch (e) {
+                planEl.innerText = '—';
+            }
+
+            // Close hamburger menu and open settings popup
+            document.getElementById('profile-menu').classList.add('hidden-scale');
+            openModal('settings-modal');
+        }
+
         async function openPlansModal() {
             hideCheckout(); 
             try {
@@ -1772,6 +1927,10 @@
             syncBannerVisibility();
             document.getElementById('user-display-name').innerText = localStorage.getItem('userEmail') || 'Usuário';
             loadDocuments();
+            // Auto-open plans modal if ?showplans=true is in the URL
+            if (new URLSearchParams(window.location.search).get('showplans') === 'true') {
+                setTimeout(() => openPlansModal(), 600);
+            }
         }
 
         const PAGE_SIZE = 15;
