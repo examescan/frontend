@@ -13,7 +13,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://js.stripe.com/v3/"></script>
 
     <script>
         tailwind.config = {
@@ -900,77 +899,7 @@
                 <p class="text-white text-[10px] tracking-wide opacity-100 m-0 leading-none" style="padding-left:10px;">Cancele quando quiser · Sem multa</p>
             </div>
 
-            <div id="checkout-container" class="hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div class="text-center mb-8">
-                    <h3 class="text-2xl font-bold text-white">Finalizar Assinatura</h3>
-                    <p class="text-gray-400 text-sm">Pagamento seguro processado pelo Stripe.</p>
-                </div>
 
-                <!-- Wrapper: overlay + stripe iframe live side by side, overlay on top -->
-                <div style="position:relative; min-height:450px;">
-
-                    <!-- Our skeleton overlay — sits on top while Stripe renders behind -->
-                    <div id="checkout-loading" style="
-                        position:absolute; inset:0; z-index:10;
-                        display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;
-                        background: rgba(10,10,12,0.0);
-                        transition: opacity 0.4s ease;
-                    ">
-                        <!-- Progress bar (indeterminate, top) -->
-                        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;">
-                            <div id="checkout-progress-bar" style="
-                                height:100%;
-                                width:35%;
-                                background:linear-gradient(to right, transparent, #3b82f6, #60a5fa, transparent);
-                                border-radius:2px;
-                                animation: checkout-bar-slide 1.8s ease-in-out infinite;
-                            "></div>
-                        </div>
-
-                        <!-- Lock icon + cycling message -->
-                        <div class="flex flex-col items-center gap-3">
-                            <div id="checkout-lock-icon" style="
-                                width:44px; height:44px; border-radius:14px;
-                                background:rgba(59,130,246,0.1);
-                                border:1px solid rgba(59,130,246,0.25);
-                                display:flex; align-items:center; justify-content:center;
-                                color:#60a5fa;
-                                animation: checkout-lock-pulse 2s ease-in-out infinite;
-                            ">
-                                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 11V7a5 5 0 0110 0v4"/>
-                                </svg>
-                            </div>
-                            <p id="checkout-loading-msg" class="text-sm text-gray-400 font-medium" style="transition:opacity 0.4s ease; min-height:20px;">Verificando seu plano...</p>
-                        </div>
-
-                        <!-- Skeleton blocks -->
-                        <div class="w-full max-w-sm space-y-3 mt-1">
-                            <div class="shimmer h-10 rounded-xl w-full"></div>
-                            <div class="shimmer h-10 rounded-xl w-full"></div>
-                            <div class="shimmer h-10 rounded-xl w-3/4"></div>
-                            <div class="shimmer h-12 rounded-xl w-full mt-4"></div>
-                        </div>
-                    </div>
-
-                    <style>
-                        @keyframes checkout-bar-slide {
-                            0%   { transform: translateX(-120%); }
-                            100% { transform: translateX(340%); }
-                        }
-                        @keyframes checkout-lock-pulse {
-                            0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0); border-color: rgba(59,130,246,0.25); }
-                            50%      { box-shadow: 0 0 16px 4px rgba(59,130,246,0.2); border-color: rgba(59,130,246,0.55); }
-                        }
-                    </style>
-
-                    <!-- Stripe mounts here — invisible until iframe fires load -->
-                    <div id="checkout" style="opacity:0; transition: opacity 0.4s ease; min-height:450px;"></div>
-                </div>
-
-                <button onclick="hideCheckout()" class="mt-8 w-full text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 hover:text-red-400 transition-colors">Voltar aos planos</button>
-            </div>
         </div>
     </div>
 
@@ -1161,8 +1090,6 @@
 
     <script>
         const API_URL = 'https://doc-interpret-926187447831.europe-west1.run.app';
-        const stripe = Stripe('pk_test_51SwTKe9JbbIHrSR1EC127ttxDqR0HBkTNR0wuTxWolqvIS3eadY4rPHPfRMi1A4JZHePfgxVoElKS0Iy2yx8hX1200LiqJrUKw');
-        
         let token = localStorage.getItem('token');
         let isLogin = true;
         let selectedFiles = [];
@@ -1174,7 +1101,6 @@
         let pendingDeleteId = null;
         let currentBilling = 'anual'; 
         let currentView = 'text'; // 'text' or 'analysis'
-        let checkoutInstance = null;
 
         let userSubscriptionData = { plan: 0, interval: 'year' };
         let newlyCompletedDocs = new Set();
@@ -1880,7 +1806,6 @@
         }
 
         async function openPlansModal() {
-            hideCheckout(); 
             try {
                 const res = await fetch(`${API_URL}/api/subscription`, { headers: { 'Authorization': `Bearer ${token}` } });
                 const data = await res.json();
@@ -1940,144 +1865,43 @@
             } catch (err) { notify('Erro ao carregar planos', 'error'); }
         }
 
+        function showRedirectOverlay() {
+            const overlay = document.getElementById('stripe-redirect-overlay');
+            if (overlay) overlay.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
         async function handleSubscribe(planId) {
-            clearCreditsExhausted(); // User is taking action — clear the exhausted state
+            clearCreditsExhausted();
             const interval = currentBilling === 'anual' ? 'year' : 'month';
             const btn = document.getElementById(`btn-plan-${planId}`);
-            const originalText = btn.innerText;
+            const originalHTML = btn.innerHTML;
             btn.disabled = true;
-            btn.innerText = "Processando...";
+            btn.innerHTML = `<span style="display:inline-flex;align-items:center;gap:8px;justify-content:center;">
+                <span style="width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;display:inline-block;animation:spin 0.7s linear infinite;flex-shrink:0;"></span>
+                Preparando checkout...
+            </span>`;
             try {
-                const res = await fetch(`${API_URL}/api/subscription/subscribe`, {
+                const res = await fetch(`${API_URL}/api/subscription/subscribe2`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({ plan: parseInt(planId), interval: interval })
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || 'Erro na requisição');
-                if (data.clientSecret) { initStripeCheckout(data.clientSecret); } 
-                else if (data.subscription_plan) { notify(data.message, 'success'); openPlansModal(); }
-            } catch (err) { notify(err.message, 'error'); } 
-            finally { btn.disabled = false; btn.innerText = originalText; }
-        }
-
-        let checkoutIsInitializing = false;
-
-        // Waits for Stripe's iframe to fire its load event, then resolves.
-        // Falls back after maxWait ms so we never block forever.
-        function waitForStripeIframe(maxWait = 20000) {
-            return new Promise((resolve) => {
-                const checkoutDiv = document.getElementById('checkout');
-                let fallback = setTimeout(resolve, maxWait);
-
-                const observer = new MutationObserver(() => {
-                    const iframe = checkoutDiv.querySelector('iframe');
-                    if (!iframe) return;
-                    observer.disconnect();
-                    // iframe may already be loaded by the time we observe it
-                    if (iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
-                        clearTimeout(fallback);
-                        resolve();
-                    } else {
-                        iframe.addEventListener('load', () => { clearTimeout(fallback); resolve(); }, { once: true });
-                    }
-                });
-                observer.observe(checkoutDiv, { childList: true, subtree: true });
-            });
-        }
-
-        async function initStripeCheckout(clientSecret) {
-            if (checkoutIsInitializing) return;
-            checkoutIsInitializing = true;
-
-            if (checkoutInstance) {
-                try { checkoutInstance.destroy(); } catch (_) {}
-                checkoutInstance = null;
-            }
-
-            // Hide plans, show checkout container — our overlay is already on top
-            document.getElementById('plans-grid').classList.add('hidden');
-            document.getElementById('plans-header').classList.add('hidden');
-            document.getElementById('period-area').classList.add('hidden');
-            document.getElementById('plans-footer-info').classList.add('hidden');
-            document.getElementById('checkout-container').classList.remove('hidden');
-
-            // Reset overlay and stripe div to initial state
-            const loadingEl = document.getElementById('checkout-loading');
-            const checkoutEl = document.getElementById('checkout');
-            loadingEl.style.opacity = '1';
-            loadingEl.style.pointerEvents = 'auto';
-            checkoutEl.style.opacity = '0';
-            checkoutEl.innerHTML = '';
-            const msgEl = document.getElementById('checkout-loading-msg'); msgEl.style.transition = 'opacity 0.3s ease'; msgEl.style.opacity = '1'; msgEl.innerText = 'Conectando ao servidor do Stripe...';
-
-            const loadingPhrases = [
-                'Conectando ao servidor do Stripe...',
-                'Validando credenciais de segurança...',
-                'Estabelecendo sessão criptografada...',
-                'Verificando certificados SSL...',
-                'Carregando ambiente de pagamento seguro...',
-                'Autenticando chaves de criptografia...',
-                'Sincronizando dados da assinatura...',
-                'Inicializando gateway de pagamento...',
-                'Verificando conformidade PCI DSS...',
-                'Configurando canal seguro de dados...',
-                'Obtendo token de sessão...',
-                'Validando método de pagamento...',
-                'Aguardando confirmação do servidor...',
-                'Preparando interface de pagamento...',
-                'Quase pronto...',
-            ];
-            let phraseIndex = 0;
-            const phraseInterval = setInterval(() => {
-                phraseIndex++;
-                const el = document.getElementById('checkout-loading-msg');
-                if (el && phraseIndex < loadingPhrases.length) {
-                    el.style.opacity = '0';
-                    setTimeout(() => {
-                        if (el) { el.innerText = loadingPhrases[phraseIndex]; el.style.opacity = '1'; }
-                    }, 300);
+                if (data.url) {
+                    showRedirectOverlay();
+                    window.location.href = data.url;
+                } else if (data.subscription_plan) {
+                    notify(data.message, 'success');
+                    openPlansModal();
                 }
-            }, 3000);
-
-            try {
-                checkoutInstance = await stripe.initEmbeddedCheckout({ clientSecret });
-
-                // Mount Stripe FIRST — it starts rendering behind our overlay
-                checkoutInstance.mount('#checkout');
-
-                // Wait until the Stripe iframe actually fires load
-                await waitForStripeIframe();
-                clearInterval(phraseInterval);
-
-                // Crossfade: overlay fades out, stripe form fades in simultaneously
-                checkoutEl.style.opacity = '1';
-                loadingEl.style.opacity = '0';
-                loadingEl.style.pointerEvents = 'none';
-
-            } catch (e) {
-                clearInterval(phraseInterval);
-                notify('Erro ao carregar o checkout. Tente novamente.', 'error');
-                hideCheckout();
-            } finally {
-                checkoutIsInitializing = false;
+            } catch (err) {
+                notify(err.message, 'error');
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
             }
         }
 
-        function hideCheckout() {
-            document.getElementById('plans-grid').classList.remove('hidden');
-            document.getElementById('plans-header').classList.remove('hidden');
-            document.getElementById('period-area').classList.remove('hidden');
-            document.getElementById('plans-footer-info').classList.remove('hidden');
-            document.getElementById('checkout-container').classList.add('hidden');
-            // Reset overlay for next open
-            const loadingEl = document.getElementById('checkout-loading');
-            if (loadingEl) { loadingEl.style.opacity = '1'; loadingEl.style.pointerEvents = 'auto'; }
-            const checkoutEl = document.getElementById('checkout');
-            if (checkoutEl) { checkoutEl.style.opacity = '0'; checkoutEl.innerHTML = ''; }
-            checkoutIsInitializing = false;
-            if (checkoutInstance) { try { checkoutInstance.destroy(); } catch(_) {} checkoutInstance = null; }
-        }
 
         function showDashboard() {
             document.getElementById('auth-screen').classList.add('hidden');
@@ -2674,6 +2498,7 @@
         document.getElementById('confirm-delete-btn').onclick = performDelete;
 
         function toggleProfileMenu() { document.getElementById('profile-menu').classList.toggle('hidden-scale'); }
+
         function openUploadModal() { 
             document.getElementById('new-doc-name').value = ''; selectedFiles = []; 
             document.getElementById('photo-count').innerText = 0; renderPreviews(); openModal('upload-modal'); 
@@ -2703,6 +2528,56 @@
         }
         function logout() { dashboardVisible = false; syncBannerVisibility(); localStorage.clear(); location.reload(); }
         window.onclick = function(e) { if (!e.target.closest('nav')) { const m = document.getElementById('profile-menu'); if(m) m.classList.add('hidden-scale'); } }
-    </script>
+    </script>    <!-- Stripe redirect full-screen overlay -->
+    <div id="stripe-redirect-overlay" class="opacity-0 pointer-events-none" style="
+        position: fixed; inset: 0; z-index: 99999;
+        background: rgba(5, 5, 5, 0.92);
+        backdrop-filter: blur(18px);
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px;
+        transition: opacity 0.3s ease;
+    ">
+        <!-- Animated ring -->
+        <div style="position:relative; width:64px; height:64px;">
+            <div style="
+                position:absolute; inset:0;
+                border-radius: 50%;
+                border: 2px solid rgba(59,130,246,0.15);
+            "></div>
+            <div style="
+                position:absolute; inset:0;
+                border-radius: 50%;
+                border: 2px solid transparent;
+                border-top-color: #3b82f6;
+                border-right-color: rgba(59,130,246,0.4);
+                animation: spin 0.9s linear infinite;
+            "></div>
+            <div style="
+                position:absolute; inset: 10px;
+                border-radius: 50%;
+                background: rgba(59,130,246,0.08);
+                display:flex; align-items:center; justify-content:center;
+                color: #60a5fa;
+            ">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+            </div>
+        </div>
+        <div style="text-align:center;">
+            <p style="color:#fff; font-weight:700; font-size:1rem; letter-spacing:-0.01em; margin-bottom:6px;">Redirecionando para o pagamento</p>
+            <p style="color:#6b7280; font-size:0.8rem; font-weight:500;">Você será levado ao checkout seguro do Stripe</p>
+        </div>
+        <!-- Progress bar -->
+        <div style="width:180px; height:2px; background:rgba(255,255,255,0.06); border-radius:2px; overflow:hidden;">
+            <div style="
+                height:100%;
+                width:40%;
+                background: linear-gradient(to right, transparent, #3b82f6, #93c5fd, transparent);
+                border-radius:2px;
+                animation: checkout-bar-slide 1.6s ease-in-out infinite;
+            "></div>
+        </div>
+    </div>
+
 </body>
 </html>
