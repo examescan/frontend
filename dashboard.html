@@ -493,11 +493,123 @@
             transform: scale(1.05);
         }
 
+        /* === LOW CREDITS ALERT BALLOON === */
+        @keyframes low-credits-in {
+            0%   { opacity: 0; transform: translateX(-50%) translateY(18px) scale(0.96); }
+            100% { opacity: 1; transform: translateX(-50%) translateY(0)     scale(1); }
+        }
+        @keyframes low-credits-out {
+            0%   { opacity: 1; transform: translateX(-50%) translateY(0)     scale(1); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(12px) scale(0.95); }
+        }
+        #low-credits-balloon {
+            position: fixed;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9998;
+            width: calc(100% - 32px);
+            max-width: 420px;
+            display: none;
+        }
+        #low-credits-balloon.lc-show {
+            display: block;
+            animation: low-credits-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        #low-credits-balloon.lc-hide {
+            animation: low-credits-out 0.3s ease forwards;
+        }
+        .lc-inner {
+            background: rgba(10, 10, 18, 0.96);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(251, 191, 36, 0.25);
+            border-radius: 22px;
+            padding: 16px 18px;
+            box-shadow: 0 0 40px rgba(251, 191, 36, 0.08), 0 16px 48px rgba(0,0,0,0.65);
+            display: flex;
+            align-items: flex-start;
+            gap: 13px;
+        }
+        .lc-icon {
+            flex-shrink: 0;
+            width: 36px; height: 36px;
+            border-radius: 11px;
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.25);
+            display: flex; align-items: center; justify-content: center;
+            color: #fbbf24;
+            margin-top: 1px;
+        }
+        .lc-body { flex: 1; min-width: 0; }
+        .lc-title {
+            font-size: 12px; font-weight: 700; color: #fff;
+            line-height: 1.45; margin-bottom: 3px;
+        }
+        .lc-sub {
+            font-size: 11px; font-weight: 500; color: #94a3b8;
+            line-height: 1.5;
+        }
+        .lc-sub strong { color: #fbbf24; font-weight: 700; }
+        .lc-actions {
+            display: flex; align-items: center; gap: 8px;
+            margin-top: 11px;
+        }
+        .lc-btn-plans {
+            background: #d97706;
+            color: white; border: none;
+            padding: 7px 14px; border-radius: 10px;
+            font-size: 10px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 0.07em;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+            box-shadow: 0 0 14px rgba(217, 119, 6, 0.35);
+        }
+        .lc-btn-plans:hover { background: #f59e0b; transform: scale(1.04); }
+        .lc-btn-dismiss {
+            background: none; border: none;
+            color: #4b5563; font-size: 10px; font-weight: 600;
+            cursor: pointer; padding: 7px 8px; border-radius: 8px;
+            transition: color 0.2s;
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .lc-btn-dismiss:hover { color: #9ca3af; }
+        .lc-close {
+            flex-shrink: 0; background: none; border: none;
+            color: #374151; cursor: pointer;
+            padding: 2px; transition: color 0.2s;
+            margin-top: -1px;
+        }
+        .lc-close:hover { color: #9ca3af; }
+
     </style>
 </head>
 <body class="antialiased">
 
     <div id="toast-container"></div>
+
+    <!-- Low credits alert balloon (<20% remaining) -->
+    <div id="low-credits-balloon" role="alert" aria-live="polite">
+        <div class="lc-inner">
+            <div class="lc-icon">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                </svg>
+            </div>
+            <div class="lc-body">
+                <p class="lc-title">Você já consumiu 80% dos seus créditos desse mês</p>
+                <p class="lc-sub">Não deixe um exame importante ficar sem análise — <strong>quem age agora não para no meio do diagnóstico.</strong></p>
+                <div class="lc-actions">
+                    <button class="lc-btn-plans" onclick="dismissLowCreditsAlert(); openPlansModal();">Ver planos</button>
+                    <button class="lc-btn-dismiss" onclick="dismissLowCreditsAlert()">Agora não</button>
+                </div>
+            </div>
+            <button class="lc-close" onclick="dismissLowCreditsAlert()" title="Fechar">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+    </div>
 
     <!-- Persistent credits-exhausted banner -->
     <div id="credits-banner" class="credits-banner-hidden" aria-live="polite">
@@ -581,6 +693,27 @@
                     <div class="mb-6 pb-6 border-b border-white/10">
                         <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2">Logado como</span>
                         <p class="text-sm font-bold text-white truncate" id="user-display-name">Carregando...</p>
+                        <!-- Plan info row -->
+                        <div class="mt-2.5 flex items-center gap-2">
+                            <span id="menu-plan-pill" class="settings-plan-pill free">
+                                <span id="menu-plan-dot" class="settings-plan-dot"></span>
+                                <span id="menu-plan-name">—</span>
+                            </span>
+                            <div id="menu-plan-ring-wrap" class="hidden items-center gap-1.5" style="display:none;">
+                                <svg width="18" height="18" viewBox="0 0 18 18" style="transform:rotate(-90deg);flex-shrink:0;">
+                                    <circle cx="9" cy="9" r="7" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2.5"/>
+                                    <circle id="menu-ring-arc" cx="9" cy="9" r="7" fill="none" stroke="#34d399" stroke-width="2.5" stroke-dasharray="0 43.98" stroke-linecap="round"/>
+                                </svg>
+                                <span id="menu-plan-pct" class="text-[11px] font-bold" style="color:#34d399;">—</span>
+                            </div>
+                        </div>
+                        <!-- Renewal date -->
+                        <div id="menu-renewal-wrap" style="display:none;" class="mt-1.5 flex items-center gap-1.5">
+                            <svg class="w-3 h-3 flex-shrink-0" style="color:#6b7280;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        <span class="text-[10px] font-medium text-gray-500">Renovação de créditos em <span id="menu-renewal-date" class="text-gray-300 font-bold">—</span></span>
+                        </div>
                     </div>
                     <div class="space-y-2">
                         <button id="menu-plans-btn" onclick="openPlansModal()" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-gray-300 group">
@@ -713,9 +846,15 @@
             flex-direction: column;
             transition: border-color 0.2s;
         }
+        .plan-col-secondary {
+            transform: scale(0.92);
+            transform-origin: bottom center;
+        }
         .plan-col-featured {
             border-color: rgba(59,130,246,0.3);
             background: linear-gradient(160deg, rgba(59,130,246,0.06) 0%, rgba(255,255,255,0.02) 100%);
+            position: relative;
+            z-index: 2;
         }
         .plan-feature-check { color: #9ca3af; width: 13px; height: 13px; flex-shrink: 0; margin-top: 2px; }
         .plan-feature-check-active { color: #60a5fa; }
@@ -723,6 +862,23 @@
         .plan-feature-label { color: #d1d5db; font-size: 12px; }
         .plan-feature-label-active { color: #d1d5db; font-size: 12px; }
         .plan-feature-label-na { color: #d1d5db; font-size: 12px; }
+        .plan-ideal-chip {
+            display: inline-block;
+            font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
+            padding: 3px 10px; border-radius: 100px;
+            background: rgba(209,213,219,0.05);
+            border: 1px solid rgba(209,213,219,0.14);
+            color: #d1d5db;
+        }
+        .plan-save-chip {
+            display: inline-block;
+            font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
+            padding: 3px 10px; border-radius: 100px;
+            background: rgba(74,222,128,0.08);
+            border: 1px solid rgba(74,222,128,0.22);
+            color: #4ade80;
+            margin-bottom: 6px;
+        }
         .plan-popular-chip {
             display: inline-block;
             font-size: 9px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
@@ -730,6 +886,38 @@
             background: rgba(59,130,246,0.12);
             border: 1px solid rgba(59,130,246,0.25);
             color: #60a5fa;
+            position: relative;
+            overflow: hidden;
+        }
+        .plan-popular-chip::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -60%;
+            width: 40%; height: 100%;
+            background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.18) 50%, transparent 80%);
+            transform: skewX(-15deg);
+            animation: chip-shine 3.5s ease-in-out infinite;
+        }
+        .plan-btn-select.plan-btn-glow {
+            position: relative;
+            overflow: hidden;
+        }
+        .plan-btn-select.plan-btn-glow::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -75%;
+            width: 50%; height: 100%;
+            background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.22) 50%, transparent 80%);
+            transform: skewX(-15deg);
+            animation: chip-shine 3.5s ease-in-out infinite;
+            animation-delay: 0.6s;
+        }
+        @keyframes chip-shine {
+            0%   { left: -60%; opacity: 0; }
+            10%  { opacity: 1; }
+            40%  { left: 130%; opacity: 1; }
+            41%  { opacity: 0; }
+            100% { left: 130%; opacity: 0; }
         }
         .plan-btn-select {
             width: 100%; padding: 12px 0; border-radius: 10px;
@@ -744,9 +932,9 @@
         }
         .plan-btn-select:disabled { cursor: default; }
         .plan-btn-current {
-            background: rgba(59,130,246,0.08) !important;
-            color: rgba(96,165,250,0.7) !important;
-            border: 1px solid rgba(59,130,246,0.18) !important;
+            background: rgba(255,255,255,0.06) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255,255,255,0.15) !important;
         }
         .plan-btn-unavailable {
             background: transparent !important;
@@ -801,7 +989,7 @@
             <div id="period-area" class="mb-5">
                 <div id="period-selector" class="switch-toggle" onclick="toggleBilling()">
                     <div class="slider"></div>
-                    <span id="label-anual" class="active">Anual <em class="not-italic text-[9px] text-green-400 ml-1">-20%</em></span>
+                    <span id="label-anual" class="active">Anual <em class="not-italic text-[9px] text-green-400 ml-1">-25%</em></span>
                     <span id="label-mensal">Mensal</span>
                 </div>
             </div>
@@ -809,15 +997,16 @@
             <div id="plans-grid-clip">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="plans-grid">
 
-                <!-- FREE -->
-                <div class="plan-col plan-col-available">
+                <div class="plan-col plan-col-secondary">
                     <div class="mb-1">
                         <span class="text-base font-black text-gray-300 uppercase tracking-wider">Gratuito</span>
                     </div>
-                    <div class="flex items-baseline gap-1 mt-2 mb-4">
+                    <div class="flex items-baseline gap-1 mt-2 mb-2">
                         <span class="text-3xl font-light text-white tracking-tight">R$ 0</span>
                         <span class="text-gray-600 text-[11px]">/mês</span>
                     </div>
+                    <div class="mb-1"><div id="save-chip-0" class="plan-save-chip" style="opacity:0;">placeholder</div></div>
+                    <div class="mb-3"><span class="plan-ideal-chip">Ideal para começar</span></div>
                     <div style="height:1px;background:rgba(255,255,255,0.05);margin-bottom:14px;"></div>
                     <ul class="space-y-2.5 flex-1 mb-5">
                         <li class="flex items-start gap-2.5">
@@ -837,15 +1026,16 @@
                 </div>
 
                 <!-- ESSENTIAL -->
-                <div class="plan-col plan-col-available">
-                    <div class="flex items-center justify-between mb-1">
-                        <span class="text-base font-black text-white uppercase tracking-wider">Essencial</span>
-                        <span class="plan-popular-chip">Popular</span>
+                <div class="plan-col plan-col-secondary">
+                    <div class="mb-1">
+                        <span class="text-base font-black text-gray-300 uppercase tracking-wider">Essencial</span>
                     </div>
-                    <div class="flex items-baseline gap-1 mt-2 mb-4">
+                    <div class="flex items-baseline gap-1 mt-2 mb-2">
                         <span id="price-basic" class="text-3xl font-light text-white tracking-tight">R$ 29</span>
                         <span class="text-gray-500 text-[11px]">/mês</span>
                     </div>
+                    <div class="mb-1"><div id="save-chip-1" class="plan-save-chip" style="opacity:0;">placeholder</div></div>
+                    <div class="mb-3"><span class="plan-ideal-chip">Ideal para acadêmicos</span></div>
                     <div style="height:1px;background:rgba(255,255,255,0.07);margin-bottom:14px;"></div>
                     <ul class="space-y-2.5 flex-1 mb-5">
                         <li class="flex items-start gap-2.5">
@@ -865,14 +1055,17 @@
                 </div>
 
                 <!-- PRO -->
-                <div class="plan-col plan-col-available">
-                    <div class="mb-1">
-                        <span class="text-base font-black text-gray-300 uppercase tracking-wider">Pro</span>
+                <div class="plan-col plan-col-available plan-col-featured">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-base font-black text-white uppercase tracking-wider">Pro</span>
+                        <span class="plan-popular-chip">Popular</span>
                     </div>
-                    <div class="flex items-baseline gap-1 mt-2 mb-4">
+                    <div class="flex items-baseline gap-1 mt-2 mb-2">
                         <span id="price-pro" class="text-3xl font-light text-white tracking-tight">R$ 59</span>
                         <span class="text-gray-600 text-[11px]">/mês</span>
                     </div>
+                    <div class="mb-1"><div id="save-chip-2" class="plan-save-chip" style="opacity:0;">placeholder</div></div>
+                    <div class="mb-3"><span class="plan-ideal-chip">Ideal para profissionais</span></div>
                     <div style="height:1px;background:rgba(255,255,255,0.05);margin-bottom:14px;"></div>
                     <ul class="space-y-2.5 flex-1 mb-5">
                         <li class="flex items-start gap-2.5">
@@ -895,7 +1088,10 @@
             </div><!-- /plans-grid-clip -->
 
             <div id="plans-footer-info" class="flex flex-col items-start gap-2 mt-4">
-                <div id="current-plan-label" class="text-gray-500 text-[11px] tracking-wide leading-none"></div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <div id="current-plan-label"></div>
+                    <div id="remaining-pct-badge" class="hidden"></div>
+                </div>
                 <p class="text-white text-[10px] tracking-wide opacity-100 m-0 leading-none" style="padding-left:10px;">Cancele quando quiser · Sem multa</p>
             </div>
 
@@ -1725,6 +1921,26 @@
                 document.getElementById('price-basic').innerText = toMode === 'anual' ? 'R$ 29' : 'R$ 39';
                 document.getElementById('price-pro').innerText   = toMode === 'anual' ? 'R$ 59' : 'R$ 79';
                 updatePlanButtons();
+                updateSaveChips();
+            });
+        }
+
+        function updateSaveChips() {
+            const isAnual = currentBilling === 'anual';
+            // savings per plan per year = (monthly - annual) * 12
+            const savings = [0, (39-29)*12, (79-59)*12]; // [Free, Essencial, Pro]
+            [0, 1, 2].forEach(i => {
+                const chip = document.getElementById(`save-chip-${i}`);
+                if (!chip) return;
+                if (isAnual && savings[i] > 0) {
+                    chip.textContent = `Economize R$ ${savings[i]}`;
+                    chip.style.opacity = '1';
+                } else if (isAnual && i === 0) {
+                    chip.textContent = `Economize R$ 0`;
+                    chip.style.opacity = '1';
+                } else {
+                    chip.style.opacity = '0';
+                }
             });
         }
 
@@ -1761,7 +1977,10 @@
                     btn.innerText = "Selecionar";
                     btn.removeAttribute('style');
                     btn.className = "plan-btn-select plan-btn-glow";
-                    if (card) card.classList.add('plan-col-available');
+                    if (card) {
+                        if (lvl === 2) card.classList.add('plan-col-available');
+                        else card.classList.remove('plan-col-available');
+                    }
                 }
             });
         }
@@ -1827,16 +2046,34 @@
                 document.getElementById('price-pro').innerText   = userIsMonthly ? 'R$ 79' : 'R$ 59';
 
                 updatePlanButtons();
-
-                // Current plan label
+                updateSaveChips();
                 const planNames = ['Gratuito', 'Essencial', 'Pro'];
                 const planName  = planNames[userSubscriptionData.plan] || 'Gratuito';
                 const intervalLabel = userSubscriptionData.plan === 0 ? '' : (userSubscriptionData.interval === 'month' ? 'mensal' : 'anual');
                 const labelEl = document.getElementById('current-plan-label');
                 if (intervalLabel) {
-                    labelEl.innerHTML = `<span style="display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);vertical-align:middle;"><span style="color:white;">Plano atual:</span><span style="color:#60a5fa;">${planName} (${intervalLabel})</span></span>`;
+                    labelEl.innerHTML = `<span style="display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);vertical-align:middle;line-height:1;"><span style="color:white;font-weight:400;">Plano atual:</span><span style="color:#60a5fa;">${planName} (${intervalLabel})</span></span>`;
                 } else {
-                    labelEl.innerHTML = `<span style="display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);vertical-align:middle;"><span style="color:white;">Plano atual:</span><span style="color:#60a5fa;">${planName}</span></span>`;
+                    labelEl.innerHTML = `<span style="display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);vertical-align:middle;line-height:1;"><span style="color:white;font-weight:400;">Plano atual:</span><span style="color:#60a5fa;">${planName}</span></span>`;
+                }
+
+                // Remaining percentage badge
+                const remainingEl = document.getElementById('remaining-pct-badge');
+                const rawPct = data.subscription && data.subscription.remaining_plan_percentage != null
+                    ? data.subscription.remaining_plan_percentage
+                    : null;
+                if (rawPct != null) {
+                    const pct = Math.min(100, Math.max(0, parseFloat(rawPct)));
+                    const radius = 7;
+                    const circ   = 2 * Math.PI * radius; // ~43.98
+                    const filled = (pct / 100) * circ;
+                    // Color: green >50%, yellow 20-50%, red <20%
+                    const ringColor = pct > 50 ? '#34d399' : pct > 20 ? '#fbbf24' : '#f87171';
+                    remainingEl.className = '';
+                    remainingEl.innerHTML = `<span style="display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);vertical-align:middle;line-height:1;"><span style="color:white;font-weight:400;">Restantes esse mês:</span><svg width="9" height="9" viewBox="0 0 18 18" style="flex-shrink:0;transform:rotate(-90deg);"><circle cx="9" cy="9" r="${radius}" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2.5"/><circle cx="9" cy="9" r="${radius}" fill="none" stroke="${ringColor}" stroke-width="2.5" stroke-dasharray="${filled.toFixed(2)} ${circ.toFixed(2)}" stroke-linecap="round"/></svg><span style="color:${ringColor};">${pct.toFixed(pct % 1 === 0 ? 0 : 1)}%</span></span>`;
+                } else {
+                    remainingEl.className = 'hidden';
+                    remainingEl.innerHTML = '';
                 }
 
                 openModal('plans-modal');
@@ -1858,6 +2095,7 @@
                                 document.getElementById('price-basic').innerText = 'R$ 29';
                                 document.getElementById('price-pro').innerText   = 'R$ 59';
                                 updatePlanButtons();
+                                updateSaveChips();
                             });
                         }, 2250); // glow duration: 3 × 0.75s
                     }, 2000); // 2s after open, glow starts
@@ -1910,6 +2148,8 @@
             syncBannerVisibility();
             document.getElementById('user-display-name').innerText = localStorage.getItem('userEmail') || 'Usuário';
             loadDocuments();
+            // Check credits after login
+            setTimeout(() => checkLowCredits(), 1500);
             // Auto-open plans modal if ?showplans=true is in the URL
             if (new URLSearchParams(window.location.search).get('showplans') === 'true') {
                 setTimeout(() => openPlansModal(), 600);
@@ -2097,6 +2337,7 @@
                                     if (streamFoundDocId) {
                                         updateCardToFinished(streamFoundDocId);
                                     }
+                                    setTimeout(() => checkLowCredits(), 800);
                                 }
                             } catch(e) {
                                 console.warn('[ExameScan stream parse error]', line, e);
@@ -2387,6 +2628,7 @@
                     }
                 } else {
                     notify("Interpretação concluída!", "success");
+                    setTimeout(() => checkLowCredits(), 800);
                 }
             }
         }
@@ -2497,7 +2739,101 @@
         }
         document.getElementById('confirm-delete-btn').onclick = performDelete;
 
-        function toggleProfileMenu() { document.getElementById('profile-menu').classList.toggle('hidden-scale'); }
+        function toggleProfileMenu() {
+            const menu = document.getElementById('profile-menu');
+            const isOpening = menu.classList.contains('hidden-scale');
+            menu.classList.toggle('hidden-scale');
+            if (isOpening) loadMenuPlanInfo();
+        }
+
+        /* ---- Low-credits balloon ---- */
+        let _lowCreditsAlertShownThisSession = false;
+
+        function maybeShowLowCreditsAlert(pct) {
+            if (_lowCreditsAlertShownThisSession) return;
+            if (pct == null || pct > 20) return;
+            _lowCreditsAlertShownThisSession = true;
+            const el = document.getElementById('low-credits-balloon');
+            el.classList.remove('lc-hide');
+            el.classList.add('lc-show');
+        }
+
+        function dismissLowCreditsAlert() {
+            const el = document.getElementById('low-credits-balloon');
+            el.classList.remove('lc-show');
+            el.classList.add('lc-hide');
+            el.addEventListener('animationend', () => { el.style.display = 'none'; }, { once: true });
+        }
+
+        async function checkLowCredits() {
+            try {
+                const res  = await fetch(`${API_URL}/api/subscription`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                const rawPct = data.subscription && data.subscription.remaining_plan_percentage != null
+                    ? parseFloat(data.subscription.remaining_plan_percentage) : null;
+                maybeShowLowCreditsAlert(rawPct);
+            } catch (e) {}
+        }
+
+        async function loadMenuPlanInfo() {
+            const planNames = ['Gratuito', 'Essencial', 'Pro'];
+            const nameEl   = document.getElementById('menu-plan-name');
+            const pillEl   = document.getElementById('menu-plan-pill');
+            const ringWrap = document.getElementById('menu-plan-ring-wrap');
+            const arcEl    = document.getElementById('menu-ring-arc');
+            const pctEl    = document.getElementById('menu-plan-pct');
+
+            nameEl.textContent = '...';
+            pillEl.className = 'settings-plan-pill free';
+            ringWrap.style.display = 'none';
+
+            try {
+                const res  = await fetch(`${API_URL}/api/subscription`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                const planNum  = data.subscription_plan || 0;
+                const planName = planNames[planNum] || 'Gratuito';
+                nameEl.textContent = planName;
+                pillEl.className = `settings-plan-pill ${planNum > 0 ? 'paid' : 'free'}`;
+
+                const rawPct = data.subscription && data.subscription.remaining_plan_percentage != null
+                    ? data.subscription.remaining_plan_percentage : null;
+
+                if (rawPct != null) {
+                    const pct    = Math.min(100, Math.max(0, parseFloat(rawPct)));
+                    const radius = 7;
+                    const circ   = 2 * Math.PI * radius;
+                    const filled = (pct / 100) * circ;
+                    const color  = pct > 50 ? '#34d399' : pct > 20 ? '#fbbf24' : '#f87171';
+
+                    arcEl.setAttribute('stroke', color);
+                    arcEl.setAttribute('stroke-dasharray', `${filled.toFixed(2)} ${circ.toFixed(2)}`);
+                    pctEl.textContent = `${pct.toFixed(pct % 1 === 0 ? 0 : 1)}%`;
+                    pctEl.style.color = color;
+                    ringWrap.style.display = 'flex';
+                }
+
+                // Renewal date
+                const renewalRaw = data.subscription && (
+                    data.subscription.next_credit_renewal ||
+                    data.subscription.credits_reset_at    ||
+                    data.subscription.current_period_end  ||
+                    data.subscription.next_billing_date
+                );
+                const renewWrap = document.getElementById('menu-renewal-wrap');
+                const renewDate = document.getElementById('menu-renewal-date');
+                if (renewalRaw) {
+                    const d = new Date(typeof renewalRaw === 'number' ? renewalRaw * 1000 : renewalRaw);
+                    if (!isNaN(d)) {
+                        renewDate.textContent = d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '');
+                        renewWrap.style.display = 'flex';
+                    }
+                } else {
+                    renewWrap.style.display = 'none';
+                }
+            } catch (e) {
+                nameEl.textContent = '—';
+            }
+        }
 
         function openUploadModal() { 
             document.getElementById('new-doc-name').value = ''; selectedFiles = []; 
