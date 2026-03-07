@@ -1884,7 +1884,11 @@
             const btn = document.getElementById('google-auth-btn');
             const originalHTML = btn.innerHTML;
 
-            // Show loading state on button
+            function resetBtn() {
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+            }
+
             btn.disabled = true;
             btn.innerHTML = `<span style="display:inline-flex;align-items:center;gap:10px;justify-content:center;">
                 <span style="width:16px;height:16px;border:2px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;display:inline-block;animation:spin 0.7s linear infinite;flex-shrink:0;"></span>
@@ -1892,22 +1896,19 @@
             </span>`;
 
             try {
-                const client = google.accounts.oauth2.initCodeClient({
+                google.accounts.id.initialize({
                     client_id: '712340585002-joc1mbs2mmfamkptqc1nvh3tm5klcsei.apps.googleusercontent.com',
-                    scope: 'openid email profile',
-                    ux_mode: 'popup',
                     callback: async (response) => {
-                        if (response.error) {
+                        if (!response.credential) {
                             notify('Login com Google cancelado.', 'error');
-                            btn.disabled = false;
-                            btn.innerHTML = originalHTML;
+                            resetBtn();
                             return;
                         }
                         try {
                             const res = await fetch(`${API_URL}/api/auth/login-google`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ code: response.code })
+                                body: JSON.stringify({ id_token: response.credential })
                             });
                             const data = await res.json();
                             if (res.ok && data.token) {
@@ -1922,30 +1923,37 @@
                                 showDashboard();
                             } else {
                                 notify(data.error || 'Erro ao autenticar com Google.', 'error');
-                                btn.disabled = false;
-                                btn.innerHTML = originalHTML;
+                                resetBtn();
                             }
                         } catch (err) {
                             notify('Erro de conexão com o servidor.', 'error');
-                            btn.disabled = false;
-                            btn.innerHTML = originalHTML;
+                            resetBtn();
                         }
                     },
-                    error_callback: (err) => {
-                        if (err.type !== 'popup_closed') {
-                            notify('Erro ao abrir popup do Google.', 'error');
-                        }
-                        btn.disabled = false;
-                        btn.innerHTML = originalHTML;
+                    ux_mode: 'popup',
+                    cancel_on_tap_outside: true
+                });
+
+                google.accounts.id.prompt((notification) => {
+                    // prompt() é suprimido quando o usuário já dispensou o One Tap
+                    // nesse caso caímos no botão de popup explícito abaixo
+                    if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                        // One Tap foi bloqueado: abre popup OAuth explícito via renderButton trick
+                        const tempDiv = document.createElement('div');
+                        tempDiv.style.cssText = 'position:fixed;top:-9999px;left:-9999px;';
+                        document.body.appendChild(tempDiv);
+                        google.accounts.id.renderButton(tempDiv, {
+                            type: 'standard',
+                            size: 'large'
+                        });
+                        tempDiv.querySelector('div[role=button]')?.click();
+                        setTimeout(() => document.body.removeChild(tempDiv), 1000);
                     }
                 });
 
-                client.requestCode();
-
             } catch (err) {
                 notify('Erro ao inicializar login com Google.', 'error');
-                btn.disabled = false;
-                btn.innerHTML = originalHTML;
+                resetBtn();
             }
         }
 
