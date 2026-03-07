@@ -1308,7 +1308,7 @@
 
     <script>
         const API_URL = 'https://doc-interpret-926187447831.europe-west1.run.app';
-        let token = localStorage.getItem('token');
+        let token = sessionStorage.getItem('token');
         let isLogin = true;
         let selectedFiles = [];
         let cameraStream = null;
@@ -1896,8 +1896,8 @@
                 if (res.ok) {
                     if (data.token) {
                         token = data.token;
-                        localStorage.setItem('token', token);
-                        localStorage.setItem('userEmail', email);
+                        sessionStorage.setItem('token', token);
+                        sessionStorage.setItem('userEmail', email);
                         if (!isLogin) notify('Conta criada com sucesso!', 'success');
                         showDashboard();
                     } else {
@@ -1940,8 +1940,8 @@
                             const data = await res.json();
                             if (res.ok && data.token) {
                                 token = data.token;
-                                localStorage.setItem('token', token);
-                                localStorage.setItem('userEmail', (data.user && data.user.email) || '');
+                                sessionStorage.setItem('token', token);
+                                sessionStorage.setItem('userEmail', (data.user && data.user.email) || '');
                                 if (res.status === 201) {
                                     notify('Conta criada com Google! Bem-vindo(a)!', 'success');
                                     showDashboard();
@@ -1997,8 +1997,8 @@
             eventSource = new EventSource(`${API_URL}/api/auth/login-qr/stream?uuid=${uuid}`);
             eventSource.addEventListener('login', (e) => {
                 const data = JSON.parse(e.data);
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('userEmail', data.email || 'Usuário');
+                sessionStorage.setItem('token', data.token);
+                sessionStorage.setItem('userEmail', data.email || 'Usuário');
                 location.reload(); 
             });
         }
@@ -2108,7 +2108,7 @@
 
         async function openSettingsModal() {
             // Populate email + avatar initials
-            const email = localStorage.getItem('userEmail') || '—';
+            const email = sessionStorage.getItem('userEmail') || '—';
             document.getElementById('settings-email').innerText = email;
             const initials = email !== '—' ? email.split('@')[0].slice(0, 2).toUpperCase() : '?';
             document.getElementById('settings-avatar-initials').innerText = initials;
@@ -2265,7 +2265,7 @@
             document.getElementById('dashboard').classList.remove('hidden');
             dashboardVisible = true;
             syncBannerVisibility();
-            document.getElementById('user-display-name').innerText = localStorage.getItem('userEmail') || 'Usuário';
+            document.getElementById('user-display-name').innerText = sessionStorage.getItem('userEmail') || 'Usuário';
             loadDocuments();
             // Check credits after login
             setTimeout(() => checkLowCredits(), 1500);
@@ -2976,7 +2976,7 @@
                 updatePlanButtons();
             }
         }
-        function logout() { dashboardVisible = false; syncBannerVisibility(); localStorage.clear(); location.reload(); }
+        function logout() { dashboardVisible = false; syncBannerVisibility(); sessionStorage.removeItem('token'); sessionStorage.removeItem('userEmail'); location.reload(); }
         window.onclick = function(e) { if (!e.target.closest('nav')) { const m = document.getElementById('profile-menu'); if(m) m.classList.add('hidden-scale'); } }
     </script>    <!-- Stripe redirect full-screen overlay -->
     <div id="stripe-redirect-overlay" class="opacity-0 pointer-events-none" style="
