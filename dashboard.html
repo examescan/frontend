@@ -645,9 +645,14 @@
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" /></svg>
                     Entrar com e-mail e senha
                 </button>
+                <div class="flex items-center gap-3">
+                    <div class="flex-1 h-px bg-white/10"></div>
+                    <span class="text-[11px] font-semibold text-gray-600 uppercase tracking-widest">ou</span>
+                    <div class="flex-1 h-px bg-white/10"></div>
+                </div>
                 <button onclick="startQRLoginFlow()" class="w-full bg-white/5 border border-white/10 text-gray-300 p-3.5 rounded-xl hover:bg-white/10 hover:text-white flex items-center justify-center gap-3 transition-all font-bold text-sm group">
                     <svg class="w-4 h-4 text-gray-500 group-hover:text-blue-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1-1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
-                    Acessar via QR Code
+                    Conectar via QR Code
                 </button>
                 <div class="pt-2 text-center">
                     <a href="/forgotpassword" class="text-[10px] font-semibold text-gray-500 hover:text-blue-400 transition-colors tracking-wide">Esqueci minha senha</a>
@@ -1819,7 +1824,26 @@
             setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 3500);
         }
 
-        if (token) showDashboard();
+        // ── JWT helper ──────────────────────────────────────────────────────
+        function decodeJWT(t) {
+            try { return JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))); }
+            catch(e) { return {}; }
+        }
+
+        // Called after every successful auth; shows terms modal if needed
+        function checkTermsAndShowDashboard(userData) {
+            // userData may come from API response; fall back to decoding current token
+            const accepted = userData
+                ? userData.terms_accepted
+                : decodeJWT(token).terms_accepted;
+            if (!accepted) {
+                showTermsModal();
+            } else {
+                showDashboard();
+            }
+        }
+
+        if (token) checkTermsAndShowDashboard(null);
 
         // Guarda se deve abrir em modo cadastro quando o formulário de email for aberto
         const _autoRegister = new URLSearchParams(window.location.search).get('criarConta') === 'true';
@@ -1899,7 +1923,7 @@
                         sessionStorage.setItem('token', token);
                         sessionStorage.setItem('userEmail', email);
                         if (!isLogin) notify('Conta criada com sucesso!', 'success');
-                        showDashboard();
+                        checkTermsAndShowDashboard(data.user || null);
                     } else {
                         isLogin = true; toggleAuthMode(); notify('Conta criada! Por favor, faça login.', 'success');
                     }
@@ -1944,11 +1968,11 @@
                                 sessionStorage.setItem('userEmail', (data.user && data.user.email) || '');
                                 if (res.status === 201) {
                                     notify('Conta criada com Google! Bem-vindo(a)!', 'success');
-                                    showDashboard();
+                                    checkTermsAndShowDashboard(data.user || null);
                                     setTimeout(() => openPlansModal(), 600);
                                 } else {
                                     notify('Login realizado com sucesso!', 'success');
-                                    showDashboard();
+                                    checkTermsAndShowDashboard(data.user || null);
                                 }
                             } else {
                                 notify(data.error || 'Erro ao autenticar com Google.', 'error');
@@ -2087,7 +2111,7 @@
                     if (card) card.classList.remove('plan-col-available');
                 } else if (isDowngrade) {
                     btn.disabled = true;
-                    btn.innerText = "Seu plano atual já é superior";
+                    btn.innerText = "Indisponível";
                     btn.removeAttribute('style');
                     btn.className = "plan-btn-select plan-btn-unavailable";
                     if (card) card.classList.remove('plan-col-available');
@@ -2729,7 +2753,7 @@
             } finally {
                 if (handled) return;
                 if (!successfulRender) {
-                    const finalCheck = await fetch(`${API_URL}/api/documents/${currentDocId}`, { 
+                    const finalCheck = await fetch(`${API_URL}/api/documents3/${currentDocId}`, { 
                         headers: { 'Authorization': `Bearer ${token}` } 
                     });
                     const finalData = await finalCheck.json();
@@ -2852,7 +2876,7 @@
         async function performDelete() {
             closeModal('confirm-delete-modal');
             try {
-                await fetch(`${API_URL}/api/documents/${pendingDeleteId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+                await fetch(`${API_URL}/api/documents3/${pendingDeleteId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
                 loadDocuments();
             } catch (err) { notify('Erro ao excluir', 'error'); }
         }
@@ -3028,6 +3052,172 @@
             "></div>
         </div>
     </div>
+
+    <!-- Terms acceptance — centered welcome -->
+    <div id="terms-modal" style="
+        display:none;
+        position:fixed; inset:0; z-index:99998;
+        background: rgba(5,5,5,0.82);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        align-items:center; justify-content:center;
+        padding: 16px;
+        animation: termsModalIn 0.4s ease both;
+    ">
+        <div style="
+            background: rgba(13,13,18,0.98);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 28px;
+            width: 100%; max-width: 400px;
+            padding: 36px 32px 28px;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(59,130,246,0.06);
+            animation: termsCardIn 0.5s cubic-bezier(0.16,1,0.3,1) 0.08s both;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        ">
+
+            <!-- Subtle background glow -->
+            <div style="
+                position:absolute; top:-60px; left:50%; transform:translateX(-50%);
+                width:280px; height:200px; border-radius:50%;
+                background: radial-gradient(ellipse, rgba(59,130,246,0.12) 0%, transparent 70%);
+                pointer-events:none;
+            "></div>
+
+            <!-- Title -->
+            <h2 style="
+                color:#fff; font-weight:800; font-size:1.2rem;
+                letter-spacing:-0.03em; margin:0 0 8px;
+                font-family:'Plus Jakarta Sans',sans-serif;
+            ">Olá, bem-vindo ao ExameScan 👋</h2>
+
+            <!-- Welcome subtitle -->
+            <p style="
+                color:#6b7280; font-size:0.82rem; line-height:1.65;
+                margin:0 0 28px;
+            ">
+                Estamos felizes em ter você aqui. A partir de agora você tem acesso a uma plataforma pensada para tornar sua rotina com exames médicos mais ágil e inteligente.
+            </p>
+
+            <!-- Motion icon -->
+            <div style="position:relative; display:inline-flex; align-items:center; justify-content:center; margin-bottom:28px;">
+
+                <!-- Outer pulse ring -->
+                <div style="
+                    position:absolute;
+                    width:80px; height:80px; border-radius:50%;
+                    border: 1.5px solid rgba(59,130,246,0.25);
+                    animation: termsRingPulse 2.4s ease-in-out infinite;
+                "></div>
+
+                <!-- Middle ring -->
+                <div style="
+                    position:absolute;
+                    width:62px; height:62px; border-radius:50%;
+                    border: 1.5px solid rgba(59,130,246,0.18);
+                    animation: termsRingPulse 2.4s ease-in-out 0.4s infinite;
+                "></div>
+
+                <!-- Icon container -->
+                <div style="
+                    width:52px; height:52px; border-radius:16px;
+                    background: rgba(59,130,246,0.12);
+                    border: 1px solid rgba(59,130,246,0.3);
+                    display:flex; align-items:center; justify-content:center;
+                    color:#60a5fa; position:relative; z-index:1;
+                    animation: termsIconFloat 3.5s ease-in-out infinite;
+                    box-shadow: 0 8px 24px rgba(59,130,246,0.15);
+                ">
+                    <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Terms text -->
+            <p style="color:#4b5563; font-size:0.78rem; line-height:1.6; margin:0 0 20px;">
+                Para começar, confirme que concorda com nossos
+                <a href="/termosdeuso" target="_blank" style="color:#60a5fa; text-decoration:none; font-weight:600; border-bottom: 1px solid rgba(96,165,250,0.3);">Termos de Uso</a>
+                e
+                <a href="/termosdeuso#privacidade" target="_blank" style="color:#60a5fa; text-decoration:none; font-weight:600; border-bottom: 1px solid rgba(96,165,250,0.3);">Política de Privacidade</a>.
+            </p>
+
+            <button id="terms-accept-btn" onclick="acceptTerms()" style="
+                width:100%; padding:14px; border-radius:14px; border:none; cursor:pointer;
+                background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                color:#fff; font-family:'Plus Jakarta Sans',sans-serif;
+                font-weight:700; font-size:0.875rem; letter-spacing:-0.01em;
+                box-shadow: 0 4px 20px rgba(59,130,246,0.35);
+                transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
+            " onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 8px 28px rgba(59,130,246,0.45)';"
+               onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 20px rgba(59,130,246,0.35)';">
+                Entendido, vamos começar
+            </button>
+
+        </div>
+    </div>
+
+    <style>
+        @keyframes termsModalIn {
+            from { opacity:0; } to { opacity:1; }
+        }
+        @keyframes termsCardIn {
+            from { opacity:0; transform:scale(0.93) translateY(20px); }
+            to   { opacity:1; transform:scale(1) translateY(0); }
+        }
+        @keyframes termsRingPulse {
+            0%, 100% { transform:scale(1); opacity:0.6; }
+            50%       { transform:scale(1.15); opacity:0.15; }
+        }
+        @keyframes termsIconFloat {
+            0%, 100% { transform:translateY(0px); }
+            50%       { transform:translateY(-5px); }
+        }
+    </style>
+
+    <script>
+        function showTermsModal() {
+            const m = document.getElementById('terms-modal');
+            m.style.display = 'flex';
+        }
+
+        async function acceptTerms() {
+            const btn = document.getElementById('terms-accept-btn');
+            btn.disabled = true;
+            btn.innerHTML = `<span style="display:inline-flex;align-items:center;gap:8px;justify-content:center;">
+                <span style="width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;display:inline-block;animation:spin 0.7s linear infinite;flex-shrink:0;"></span>
+                Iniciando...
+            </span>`;
+
+            try {
+                const res = await fetch(`${API_URL}/api/auth/accept-terms`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ accepted: true })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    // Update token with new one that has terms_accepted: true
+                    if (data.token) {
+                        token = data.token;
+                        sessionStorage.setItem('token', token);
+                    }
+                    // Hide modal and show dashboard
+                    document.getElementById('terms-modal').style.display = 'none';
+                    showDashboard();
+                } else {
+                    notify(data.error || 'Erro ao registrar aceite. Tente novamente.', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = 'Li e aceito os Termos e a Política de Privacidade';
+                }
+            } catch (err) {
+                notify('Erro de conexão. Tente novamente.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = 'Li e aceito os Termos e a Política de Privacidade';
+            }
+        }
+    </script>
 
 </body>
 </html>
