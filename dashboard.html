@@ -2645,7 +2645,7 @@
                 </div>`;
             openModal('analysis-modal');
 
-            const res = await fetch(`${API_URL}/api/documents/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const res = await fetch(`${API_URL}/api/documents3/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
             const data = await res.json();
             
             currentAnalysisRawText = data.documento.analise;
