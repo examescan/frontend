@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExameScan | Termos de Uso e Política de Privacidade</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --primary: #3B82F6;
+            --bg: #050505;
+            --text: #e2e8f0;
+            --muted: #6b7280;
+            --faint: #374151;
+            --border: rgba(255,255,255,0.07);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.75;
+            background: linear-gradient(135deg, #050505 0%, #080a0f 50%, #050505 100%);
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(circle at 50% 0%, rgba(59,130,246,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(59,130,246,0.05) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── Nav ── */
+        nav {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(5,5,5,0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            height: 56px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .nav-brand {
+            font-size: 1rem; font-weight: 800; letter-spacing: -0.03em;
+            background: linear-gradient(to right, #fff, #3B82F6, #fff);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 4s linear infinite;
+            text-decoration: none;
+        }
+        @keyframes shine { to { background-position: 200% center; } }
+
+        .nav-back {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 0.75rem; font-weight: 600; color: var(--muted);
+            text-decoration: none; transition: color 0.2s;
+        }
+        .nav-back:hover { color: #fff; }
+
+        /* ── Layout ── */
+        .page {
+            position: relative; z-index: 1;
+            max-width: 780px; margin: 0 auto;
+            padding: 48px 24px 96px;
+        }
+
+        /* ── Header ── */
+        .doc-header {
+            margin-bottom: 48px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+        }
+        .doc-tag {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(59,130,246,0.1);
+            border: 1px solid rgba(59,130,246,0.2);
+            color: #60a5fa;
+            font-size: 0.7rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            padding: 4px 12px; border-radius: 20px;
+            margin-bottom: 16px;
+        }
+        .doc-title {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 800; letter-spacing: -0.03em;
+            color: #fff; margin-bottom: 8px;
+        }
+        .doc-meta {
+            font-size: 0.78rem; color: var(--muted); font-weight: 500;
+        }
+        .doc-notice {
+            margin-top: 20px;
+            background: rgba(59,130,246,0.06);
+            border: 1px solid rgba(59,130,246,0.15);
+            border-left: 3px solid var(--primary);
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-size: 0.8rem; color: #94a3b8; line-height: 1.65;
+        }
+
+        /* ── TOC ── */
+        .toc {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 48px;
+        }
+        .toc-title {
+            font-size: 0.7rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            color: var(--muted); margin-bottom: 14px;
+        }
+        .toc-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+        .toc-list li a {
+            font-size: 0.82rem; color: #9ca3af; text-decoration: none;
+            font-weight: 500; transition: color 0.2s;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .toc-list li a::before {
+            content: ""; display: inline-block;
+            width: 4px; height: 4px; border-radius: 50%;
+            background: var(--faint); flex-shrink: 0;
+            transition: background 0.2s;
+        }
+        .toc-list li a:hover { color: #60a5fa; }
+        .toc-list li a:hover::before { background: var(--primary); }
+        .toc-section-label {
+            font-size: 0.68rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            color: var(--faint); margin-top: 12px; margin-bottom: 4px;
+            padding-left: 12px;
+        }
+
+        /* ── Parts ── */
+        .part-divider {
+            display: flex; align-items: center; gap: 16px;
+            margin: 56px 0 32px;
+        }
+        .part-divider::before, .part-divider::after {
+            content: ""; flex: 1; height: 1px; background: var(--border);
+        }
+        .part-label {
+            font-size: 0.68rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        /* ── Sections ── */
+        .section { margin-bottom: 40px; scroll-margin-top: 72px; }
+
+        .section-title {
+            font-size: 0.95rem; font-weight: 800;
+            color: #fff; letter-spacing: -0.02em;
+            margin-bottom: 16px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .section-title::before {
+            content: "";
+            display: inline-block; width: 3px; height: 16px;
+            background: var(--primary); border-radius: 2px; flex-shrink: 0;
+        }
+
+        /* ── Body text ── */
+        .section p {
+            font-size: 0.875rem; color: #9ca3af;
+            margin-bottom: 12px;
+        }
+        .section p strong {
+            color: #cbd5e1; font-weight: 700;
+        }
+
+        /* ── Sub-items ── */
+        .clause {
+            margin-bottom: 20px;
+        }
+        .clause-num {
+            font-size: 0.8rem; font-weight: 700; color: #60a5fa;
+            margin-bottom: 6px;
+        }
+        .clause p {
+            font-size: 0.875rem; color: #9ca3af; margin-bottom: 8px;
+        }
+
+        /* ── Lists ── */
+        .doc-list {
+            list-style: none;
+            margin: 8px 0 16px;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .doc-list li {
+            font-size: 0.875rem; color: #9ca3af;
+            padding-left: 20px; position: relative; line-height: 1.65;
+        }
+        .doc-list li::before {
+            content: "";
+            position: absolute; left: 0; top: 9px;
+            width: 5px; height: 5px; border-radius: 50%;
+            background: rgba(59,130,246,0.5);
+        }
+
+        /* ── Warning box ── */
+        .warning-box {
+            background: rgba(248,113,113,0.05);
+            border: 1px solid rgba(248,113,113,0.15);
+            border-left: 3px solid #f87171;
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin: 16px 0;
+            font-size: 0.8rem; color: #fca5a5; line-height: 1.65;
+        }
+        .warning-box strong { color: #f87171; }
+
+        .info-box {
+            background: rgba(59,130,246,0.05);
+            border: 1px solid rgba(59,130,246,0.12);
+            border-left: 3px solid var(--primary);
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin: 16px 0;
+            font-size: 0.8rem; color: #93c5fd; line-height: 1.65;
+        }
+        .info-box strong { color: #60a5fa; }
+
+        /* ── Footer ── */
+        footer {
+            position: relative; z-index: 1;
+            border-top: 1px solid var(--border);
+            padding: 24px;
+            text-align: center;
+            font-size: 0.75rem; color: var(--faint); font-weight: 500;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="/" class="nav-brand">ExameScan</a>
+    <a href="/dashboard" class="nav-back">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Voltar ao dashboard
+    </a>
+</nav>
+
+<div class="page">
+
+    <!-- Header -->
+    <div class="doc-header">
+        <div class="doc-tag">
+            <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+            Documento legal
+        </div>
+        <h1 class="doc-title">Termos de Uso, Política de Privacidade<br>e Tratamento de Dados Pessoais de Saúde</h1>
+        <p class="doc-meta">Versão 1.0 &nbsp;·&nbsp; Vigência a partir de 06 de março de 2026</p>
+        <div class="doc-notice">
+            Este documento foi elaborado em conformidade com a <strong>LGPD (Lei nº 13.709/2018)</strong>, o Marco Civil da Internet (Lei nº 12.965/2014), o Código de Defesa do Consumidor (Lei nº 8.078/1990) e demais legislações vigentes. A utilização da plataforma ExameScan implica aceitação integral e irrestrita de todos os termos aqui estabelecidos.
+        </div>
+    </div>
+
+    <!-- TOC -->
+    <div class="toc">
+        <p class="toc-title">Índice</p>
+        <p class="toc-section-label">Parte I — Termos de Uso</p>
+        <ul class="toc-list">
+            <li><a href="#cl1">Cláusula 1ª — Das Partes e Definições</a></li>
+            <li><a href="#cl2">Cláusula 2ª — Da Natureza do Serviço</a></li>
+            <li><a href="#cl3">Cláusula 3ª — Do Cadastro e Responsabilidade do Usuário</a></li>
+            <li><a href="#cl4">Cláusula 4ª — Das Limitações de Responsabilidade</a></li>
+            <li><a href="#cl5">Cláusula 5ª — Das Obrigações do Usuário</a></li>
+            <li><a href="#cl6">Cláusula 6ª — Da Propriedade Intelectual</a></li>
+            <li><a href="#cl7">Cláusula 7ª — Da Vigência e Rescisão</a></li>
+            <li><a href="#cl8">Cláusula 8ª — Das Condições de Pagamento</a></li>
+        </ul>
+        <p class="toc-section-label">Parte II — Política de Privacidade</p>
+        <ul class="toc-list">
+            <li><a href="#cl9">Cláusula 9ª — Do Controlador e DPO</a></li>
+            <li><a href="#cl10">Cláusula 10ª — Dos Dados Coletados e Finalidades</a></li>
+            <li><a href="#cl11">Cláusula 11ª — Dos Parceiros Tecnológicos</a></li>
+            <li><a href="#cl12">Cláusula 12ª — Da Segurança da Informação</a></li>
+            <li><a href="#cl13">Cláusula 13ª — Dos Direitos dos Titulares</a></li>
+            <li><a href="#cl14">Cláusula 14ª — Da Retenção e Exclusão de Dados</a></li>
+            <li><a href="#cl15">Cláusula 15ª — Das Transferências Internacionais</a></li>
+        </ul>
+        <p class="toc-section-label">Parte III — Disposições Finais</p>
+        <ul class="toc-list">
+            <li><a href="#cl16">Cláusula 16ª — Das Atualizações dos Termos</a></li>
+            <li><a href="#cl17">Cláusula 17ª — Do Foro e da Lei Aplicável</a></li>
+            <li><a href="#cl18">Cláusula 18ª — Da Integralidade e Invalidade Parcial</a></li>
+            <li><a href="#cl19">Cláusula 19ª — Do Contato</a></li>
+        </ul>
+    </div>
+
+    <!-- PARTE I -->
+    <div class="part-divider"><span class="part-label">Parte I — Termos de Uso</span></div>
+
+    <div class="section" id="cl1">
+        <h2 class="section-title">Cláusula 1ª — Das Partes e Definições</h2>
+        <p>Para os fins deste instrumento, ficam estabelecidas as seguintes definições:</p>
+        <ul class="doc-list">
+            <li><strong>EXAMESCAN ("Plataforma" ou "Serviço"):</strong> software como serviço (SaaS) voltado à transcrição digitalizada e análise assistida de exames laboratoriais e diagnósticos de pacientes, por meio de OCR e inteligência artificial.</li>
+            <li><strong>USUÁRIO ou CONTRATANTE:</strong> pessoa física ou jurídica, médico, clínica, hospital ou estabelecimento de saúde que se cadastra e contrata o acesso ao Serviço mediante aceite eletrônico destes Termos.</li>
+            <li><strong>PACIENTE:</strong> terceiro cujos dados constam nos exames submetidos à transcrição pelo Usuário. O Paciente não é parte direta desta relação contratual, cabendo ao Usuário toda a responsabilidade pela obtenção das autorizações legais necessárias.</li>
+            <li><strong>DADO PESSOAL DE SAÚDE:</strong> informação relacionada à saúde física ou mental de pessoa natural, classificada como dado pessoal sensível nos termos do art. 5º, II e art. 11 da LGPD.</li>
+            <li><strong>PROCESSAMENTO:</strong> conjunto de operações realizadas sobre dados, incluindo coleta, uso, transmissão e armazenamento.</li>
+            <li><strong>PARCEIROS TECNOLÓGICOS:</strong> empresas terceiras contratadas para prestação de serviços de infraestrutura, computação em nuvem e processamento de linguagem natural, que atuam como operadoras de dados nos termos do art. 5º, VII da LGPD.</li>
+        </ul>
+    </div>
+
+    <div class="section" id="cl2">
+        <h2 class="section-title">Cláusula 2ª — Da Natureza do Serviço</h2>
+        <div class="clause">
+            <p class="clause-num">2.1</p>
+            <p>O ExameScan é uma ferramenta de suporte tecnológico destinada exclusivamente a profissionais de saúde habilitados e estabelecimentos médicos regularmente constituídos. A Plataforma oferece duas funcionalidades principais:</p>
+            <ul class="doc-list">
+                <li><strong>TRANSCRIÇÃO:</strong> conversão do conteúdo de exames médicos em papel para formato digital, sem armazenamento das imagens originais dos documentos.</li>
+                <li><strong>ANÁLISE ASSISTIDA POR IA:</strong> interpretação automatizada de parâmetros laboratoriais e identificação de possíveis alterações, com auxílio de modelos de linguagem e inteligência artificial.</li>
+            </ul>
+        </div>
+        <div class="clause">
+            <p class="clause-num">2.2</p>
+            <p>O ExameScan configura-se como ferramenta de apoio à decisão clínica, <strong>não substituindo, em hipótese alguma</strong>, o julgamento clínico, o diagnóstico médico, a prescrição terapêutica ou qualquer ato médico privativo do profissional habilitado, nos termos da Lei nº 12.842/2013 e resoluções do CFM.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">2.3</p>
+            <p>O Usuário reconhece e declara ter plena ciência de que a Plataforma é um instrumento auxiliar e que toda e qualquer conclusão clínica é de responsabilidade exclusiva do profissional médico que assiste o paciente.</p>
+        </div>
+    </div>
+
+    <div class="section" id="cl3">
+        <h2 class="section-title">Cláusula 3ª — Do Cadastro, Habilitação e Responsabilidade do Usuário</h2>
+        <div class="clause">
+            <p class="clause-num">3.1</p>
+            <p>O acesso ao ExameScan é restrito a profissionais de saúde com registro ativo no respectivo conselho de classe (CRM, CRF, COREN, etc.) ou a estabelecimentos de saúde regularmente registrados nos órgãos competentes.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">3.2</p>
+            <p>O Usuário, ao realizar o cadastro, declara, sob as penas da lei, que:</p>
+            <ul class="doc-list">
+                <li>Possui capacidade civil plena e habilitação legal para o exercício de sua profissão;</li>
+                <li>As informações fornecidas no cadastro são verdadeiras, precisas e completas;</li>
+                <li>Possui consentimento dos pacientes cujos exames sejam submetidos à Plataforma, ou amparo legal equivalente, nos termos da LGPD e da legislação sanitária vigente;</li>
+                <li>Utilizará o Serviço exclusivamente para finalidades lícitas, em conformidade com o Código de Ética Médica (Resolução CFM nº 2.217/2018) e demais normas regulatórias aplicáveis.</li>
+            </ul>
+        </div>
+        <div class="clause">
+            <p class="clause-num">3.3</p>
+            <p>O Usuário é o único e exclusivo responsável pela manutenção do sigilo de suas credenciais de acesso. Qualquer acesso realizado mediante uso de suas credenciais será presumido como efetuado pelo próprio Usuário.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">3.4</p>
+            <p>A Plataforma reserva-se o direito de suspender ou cancelar o acesso de qualquer Usuário que viole estes Termos, sem prejuízo das medidas cabíveis nas esferas cível, criminal e administrativa.</p>
+        </div>
+    </div>
+
+    <div class="section" id="cl4">
+        <h2 class="section-title">Cláusula 4ª — Das Limitações e Isenções de Responsabilidade da Plataforma</h2>
+        <div class="clause">
+            <p class="clause-num">4.1 — Da Função de Análise Assistida por Inteligência Artificial</p>
+            <p>A funcionalidade de análise é desenvolvida com base em modelos computacionais que, por sua natureza, <strong>podem cometer erros</strong>, apresentar imprecisões, omissões ou interpretações equivocadas de parâmetros clínicos.</p>
+            <div class="warning-box">
+                <strong>AVISO CRÍTICO:</strong> O resultado gerado pela função de análise do ExameScan <strong>NÃO constitui diagnóstico médico</strong>. Todo resultado deve ser verificado, confrontado com os valores de referência do laboratório emissor e validado pelo profissional médico responsável, sendo expressamente proibida sua utilização isolada como fundamento de decisão clínica.
+            </div>
+            <p>O ExameScan não se responsabiliza por quaisquer danos decorrentes do uso isolado, imprudente ou negligente dos resultados gerados pela análise por inteligência artificial.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">4.2 — Da Transcrição de Dados</p>
+            <p>A Plataforma não garante a perfeição ou precisão absoluta do processo de transcrição, que pode estar sujeito a erros de OCR, especialmente em documentos de baixa qualidade, manuscritos ilegíveis, carimbos sobrepostos ou papéis deteriorados. O Usuário é responsável por revisar o conteúdo transcrito antes de inseri-lo em prontuários.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">4.3 — Da Disponibilidade do Serviço</p>
+            <p>O ExameScan não garante disponibilidade ininterrupta do Serviço e não se responsabiliza por falhas decorrentes de problemas na conexão de internet do Usuário, falhas em dispositivos de terceiros, ataques cibernéticos externos ou quaisquer eventos de força maior ou caso fortuito, conforme art. 393 do Código Civil.</p>
+        </div>
+    </div>
+
+    <div class="section" id="cl5">
+        <h2 class="section-title">Cláusula 5ª — Das Obrigações do Usuário</h2>
+        <p>São obrigações do Usuário, além das demais dispostas neste instrumento:</p>
+        <ul class="doc-list">
+            <li>Utilizar a Plataforma exclusivamente para as finalidades previstas nestes Termos;</li>
+            <li>Garantir consentimento informado dos pacientes cujos exames sejam submetidos à Plataforma, nos termos do art. 7º e art. 11 da LGPD;</li>
+            <li>Não submeter à Plataforma documentos que não sejam exames médicos ou documentos de saúde relacionados à sua atividade profissional;</li>
+            <li>Comunicar imediatamente qualquer uso não autorizado de suas credenciais ou violação de segurança;</li>
+            <li>Manter atualizado seu cadastro, especialmente dados de contato e informações de pagamento;</li>
+            <li>Não tentar acessar áreas restritas, realizar engenharia reversa, descompilar ou violar a integridade técnica do sistema;</li>
+            <li>Não utilizar meios automatizados (bots, scrapers, scripts) para acessar ou interagir com a Plataforma sem autorização expressa e por escrito.</li>
+        </ul>
+    </div>
+
+    <div class="section" id="cl6">
+        <h2 class="section-title">Cláusula 6ª — Da Propriedade Intelectual</h2>
+        <div class="clause">
+            <p class="clause-num">6.1</p>
+            <p>Todos os direitos de propriedade intelectual relacionados ao ExameScan — incluindo software, algoritmos, modelos de IA, interface gráfica, marca, logotipo, documentação e conteúdo — são de titularidade exclusiva do ExameScan ou de seus licenciadores, protegidos pela Lei nº 9.610/1998 e Lei nº 9.279/1996.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">6.2</p>
+            <p>A contratação do Serviço confere ao Usuário tão somente uma licença pessoal, intransferível, não exclusiva e revogável de uso da Plataforma, pelo período de vigência da assinatura ativa, vedada qualquer cessão ou sublicenciamento.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">6.3</p>
+            <p>Os dados inseridos pelo Usuário na Plataforma permanecem de sua propriedade. O ExameScan não reivindica qualquer direito de propriedade sobre os dados clínicos submetidos, ressalvado o disposto na cláusula de tratamento de dados.</p>
+        </div>
+    </div>
+
+    <div class="section" id="cl7">
+        <h2 class="section-title">Cláusula 7ª — Da Vigência, Cancelamento e Rescisão</h2>
+        <div class="clause">
+            <p class="clause-num">7.1</p>
+            <p>Estes Termos vigoram por prazo indeterminado a partir do aceite eletrônico pelo Usuário no momento do cadastro.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">7.2</p>
+            <p>O Usuário poderá cancelar sua assinatura a qualquer momento, mediante solicitação na área de gerenciamento de conta no Dashboard. O cancelamento produzirá efeitos ao término do período de faturamento já pago, <strong>não havendo reembolso proporcional</strong>, salvo disposição expressa em contrário.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">7.3</p>
+            <p>O ExameScan poderá rescindir unilateralmente o acesso do Usuário, independentemente de aviso prévio, nas seguintes hipóteses:</p>
+            <ul class="doc-list">
+                <li>Violação de qualquer disposição destes Termos;</li>
+                <li>Uso da Plataforma para fins ilícitos ou antiéticos;</li>
+                <li>Inadimplemento no pagamento da assinatura;</li>
+                <li>Determinação de autoridade judicial, administrativa ou do CFM;</li>
+                <li>Encerramento das atividades da Plataforma.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section" id="cl8">
+        <h2 class="section-title">Cláusula 8ª — Das Condições de Pagamento e Cobrança</h2>
+        <div class="clause">
+            <p class="clause-num">8.1</p>
+            <p>O ExameScan opera sob modelo de assinatura recorrente (SaaS). Os planos disponíveis, respectivos preços e funcionalidades encontram-se detalhados na página de planos do Dashboard, que integra estes Termos por referência.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">8.2</p>
+            <p>O pagamento é realizado mediante cartão de crédito, processado por gateway de pagamento terceiro. O ExameScan <strong>não armazena dados completos de cartão de crédito</strong> em seus servidores.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">8.3 — Cancelamento Automático por Falha de Cobrança</p>
+            <div class="warning-box">
+                Em caso de falha no processamento do cartão de crédito no momento da renovação — por qualquer motivo, incluindo insuficiência de limite, cartão vencido, bloqueio ou recusa da operadora —, a assinatura será <strong>cancelada automaticamente</strong>, sem necessidade de notificação prévia, e o acesso à Plataforma será imediatamente suspenso. O Usuário é inteiramente responsável por manter seus dados de pagamento atualizados.
+            </div>
+        </div>
+        <div class="clause">
+            <p class="clause-num">8.4</p>
+            <p>O ExameScan reserva-se o direito de reajustar os valores das assinaturas, mediante comunicação ao Usuário com antecedência mínima de 30 dias. A continuidade do uso após o reajuste implicará aceitação das novas condições.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">8.5</p>
+            <p>Eventuais disputas de cobrança devem ser comunicadas à Plataforma em até 30 dias da data do lançamento, sob pena de preclusão.</p>
+        </div>
+    </div>
+
+    <!-- PARTE II -->
+    <div class="part-divider" id="privacidade"><span class="part-label">Parte II — Política de Privacidade e Tratamento de Dados</span></div>
+
+    <div class="section" id="cl9">
+        <h2 class="section-title">Cláusula 9ª — Do Controlador de Dados e Encarregado (DPO)</h2>
+        <div class="clause">
+            <p class="clause-num">9.1</p>
+            <p>Para os fins desta Política e nos termos do art. 5º, VI da LGPD, o ExameScan atua como <strong>CONTROLADOR</strong> dos dados pessoais dos Usuários cadastrados na Plataforma.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">9.2</p>
+            <p>Em relação aos dados de pacientes constantes nos exames submetidos ao processamento, o ExameScan atua como <strong>OPERADOR</strong>, sendo o Usuário (médico ou estabelecimento de saúde) o Controlador responsável, nos termos do art. 5º, VII da LGPD.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">9.3</p>
+            <p>O canal oficial para exercício dos direitos dos titulares de dados, dúvidas e comunicações relacionadas à privacidade é o endereço de e-mail indicado na seção de contato do Dashboard.</p>
+        </div>
+    </div>
+
+    <div class="section" id="cl10">
+        <h2 class="section-title">Cláusula 10ª — Dos Dados Coletados e Finalidades do Tratamento</h2>
+        <div class="clause">
+            <p class="clause-num">10.1 — Dados dos Usuários</p>
+            <p>A Plataforma coleta e trata os seguintes dados dos Usuários:</p>
+            <ul class="doc-list">
+                <li><strong>Dados cadastrais:</strong> nome completo ou razão social, CPF ou CNPJ, número de registro profissional, e-mail, telefone;</li>
+                <li><strong>Dados de acesso:</strong> endereço IP, tipo de dispositivo, navegador, logs de acesso e uso, conforme art. 15 do Marco Civil da Internet;</li>
+                <li><strong>Dados financeiros:</strong> informações de faturamento e histórico de pagamentos (dados de cartão tratados exclusivamente pelo gateway, em conformidade com PCI-DSS);</li>
+                <li><strong>Dados de uso:</strong> histórico de transcrições realizadas (metadados), funcionalidades utilizadas e configurações da conta.</li>
+            </ul>
+        </div>
+        <div class="clause">
+            <p class="clause-num">10.2 — Dados de Pacientes (Dados Sensíveis de Saúde)</p>
+            <p>Durante a utilização da funcionalidade de transcrição, o sistema processa o conteúdo dos exames enviados. Em relação a estes dados:</p>
+            <ul class="doc-list">
+                <li><strong>NÃO ARMAZENAMENTO DE IMAGENS:</strong> As imagens dos documentos submetidos à transcrição não são armazenadas nos servidores do ExameScan após a conclusão do processamento.</li>
+                <li><strong>NÃO IDENTIFICAÇÃO DE PACIENTES:</strong> O ExameScan não transcreve nem armazena informações que possam identificar diretamente o paciente, como nome completo, CPF, data de nascimento ou número de prontuário.</li>
+                <li><strong>DADOS CLÍNICOS:</strong> O sistema processa valores e parâmetros clínicos (resultados laboratoriais, unidades de medida e valores de referência) para fins de transcrição e análise.</li>
+            </ul>
+        </div>
+        <div class="clause">
+            <p class="clause-num">10.3 — Base Legal para Tratamento de Dados Sensíveis</p>
+            <p>O tratamento de dados de saúde pelo ExameScan fundamenta-se nas hipóteses previstas no art. 11, II, 'f' e 'g' da LGPD, bem como na prestação de serviços de saúde em conformidade com as normas do CFM e da ANVISA.</p>
+        </div>
+    </div>
+
+    <div class="section" id="cl11">
+        <h2 class="section-title">Cláusula 11ª — Do Tratamento por Parceiros Tecnológicos Terceiros</h2>
+        <div class="clause">
+            <p class="clause-num">11.1</p>
+            <p>Partes do processamento técnico — especialmente OCR, análise por IA e processamento de linguagem natural — são realizadas com auxílio de parceiros tecnológicos que atuam como Operadores nos termos do art. 5º, VII e art. 39 da LGPD.</p>
+            <div class="info-box">
+                <strong>TRANSPARÊNCIA:</strong> Em razão do processamento por parceiros terceiros, o ExameScan não tem controle pleno sobre as práticas de privacidade e segurança desses parceiros durante o processamento. Embora sejam selecionados parceiros comprometidos com padrões de segurança, <strong>a Plataforma não pode garantir absolutamente a confidencialidade dos dados durante etapas realizadas por tais terceiros</strong>. O Usuário tem ciência desta condição e aceita este risco ao contratar o Serviço.
+            </div>
+        </div>
+        <div class="clause">
+            <p class="clause-num">11.2</p>
+            <p>O ExameScan adota as seguintes medidas para mitigar os riscos associados ao processamento por terceiros:</p>
+            <ul class="doc-list">
+                <li>Seleção criteriosa de parceiros com reconhecida reputação em segurança da informação e conformidade com GDPR e LGPD;</li>
+                <li>Estabelecimento de acordos contratuais de processamento de dados (DPA) com cláusulas de confidencialidade e vedação ao uso dos dados para finalidades próprias dos parceiros;</li>
+                <li>Minimização dos dados transmitidos, enviando apenas o estritamente necessário;</li>
+                <li>Monitoramento periódico das práticas de conformidade dos parceiros.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section" id="cl12">
+        <h2 class="section-title">Cláusula 12ª — Da Segurança da Informação</h2>
+        <div class="clause">
+            <p class="clause-num">12.1</p>
+            <p>O ExameScan adota medidas técnicas e administrativas adequadas à proteção dos dados pessoais contra acesso não autorizado, destruição, perda, alteração ou difusão indevida, em conformidade com o art. 46 da LGPD.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">12.2</p>
+            <p>As medidas implementadas incluem: criptografia em trânsito (TLS/HTTPS), controle de acesso baseado em perfis, monitoramento de acessos, política de senha segura e processos de resposta a incidentes.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">12.3</p>
+            <p>Em caso de incidente de segurança que possa acarretar risco ou dano relevante aos titulares, o ExameScan comunicará a ocorrência à ANPD e aos Usuários afetados, nos prazos estabelecidos pelo art. 48 da LGPD e pela Resolução CD/ANPD nº 15/2024.</p>
+        </div>
+    </div>
+
+    <div class="section" id="cl13">
+        <h2 class="section-title">Cláusula 13ª — Dos Direitos dos Titulares de Dados</h2>
+        <p>Nos termos dos arts. 17 a 22 da LGPD, são assegurados aos titulares os seguintes direitos, exercíveis mediante solicitação ao canal de privacidade da Plataforma:</p>
+        <ul class="doc-list">
+            <li>Confirmação da existência de tratamento de seus dados;</li>
+            <li>Acesso aos dados pessoais tratados;</li>
+            <li>Correção de dados incompletos, inexatos ou desatualizados;</li>
+            <li>Anonimização, bloqueio ou eliminação de dados desnecessários ou tratados em desconformidade com a LGPD;</li>
+            <li>Portabilidade dos dados a outro fornecedor de serviço;</li>
+            <li>Eliminação dos dados pessoais tratados com base no consentimento, exceto nas hipóteses previstas no art. 16 da LGPD;</li>
+            <li>Informação sobre entidades com as quais o controlador realizou uso compartilhado de dados;</li>
+            <li>Revogação do consentimento, nos termos do art. 8º, §5º da LGPD;</li>
+            <li>Revisão de decisões tomadas unicamente com base em tratamento automatizado, incluindo as geradas pela funcionalidade de análise de exames.</li>
+        </ul>
+    </div>
+
+    <div class="section" id="cl14">
+        <h2 class="section-title">Cláusula 14ª — Da Retenção e Exclusão de Dados</h2>
+        <div class="clause">
+            <p class="clause-num">14.1</p>
+            <p>Os dados cadastrais e de faturamento dos Usuários serão retidos pelo período de vigência da relação contratual e, após o encerramento, pelo prazo adicional necessário ao cumprimento de obrigações legais, incluindo o prazo prescricional de 5 anos previsto no art. 206 do Código Civil.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">14.2</p>
+            <p>As imagens de exames submetidas à transcrição não são armazenadas permanentemente, sendo eliminadas após o processamento.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">14.3</p>
+            <p>Logs de acesso serão mantidos pelo prazo de 6 meses, conforme determinação do art. 15 do Marco Civil da Internet, podendo ser mantidos por prazo maior em virtude de determinação judicial ou necessidade de investigação de incidente.</p>
+        </div>
+    </div>
+
+    <div class="section" id="cl15">
+        <h2 class="section-title">Cláusula 15ª — Das Transferências Internacionais de Dados</h2>
+        <div class="clause">
+            <p class="clause-num">15.1</p>
+            <p>Em razão da utilização de parceiros tecnológicos que podem operar infraestrutura fora do território brasileiro, poderá ocorrer transferência internacional de dados pessoais.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">15.2</p>
+            <p>O ExameScan adota as salvaguardas previstas no art. 33 da LGPD para toda transferência internacional, incluindo a exigência de que os países destinatários proporcionem grau de proteção adequado, ou que o parceiro receptor ofereça garantias contratuais suficientes por meio de cláusulas-padrão aprovadas pela ANPD.</p>
+        </div>
+    </div>
+
+    <!-- PARTE III -->
+    <div class="part-divider"><span class="part-label">Parte III — Disposições Finais</span></div>
+
+    <div class="section" id="cl16">
+        <h2 class="section-title">Cláusula 16ª — Das Atualizações destes Termos</h2>
+        <div class="clause">
+            <p class="clause-num">16.1</p>
+            <p>O ExameScan reserva-se o direito de alterar, a qualquer tempo, o conteúdo destes Termos, mediante notificação ao Usuário por e-mail ou por aviso no Dashboard com antecedência mínima de 15 dias para alterações que impliquem novos ônus ao Usuário.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">16.2</p>
+            <p>A continuidade do uso da Plataforma após a entrada em vigor das alterações implicará aceitação tácita das novas condições. Caso o Usuário discorde, deverá cancelar sua assinatura antes da data de vigência das novas condições.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">16.3</p>
+            <p>A versão vigente destes Termos estará sempre disponível na Plataforma, sendo identificada pela data de versão constante no cabeçalho deste documento.</p>
+        </div>
+    </div>
+
+    <div class="section" id="cl17">
+        <h2 class="section-title">Cláusula 17ª — Do Foro e da Lei Aplicável</h2>
+        <div class="clause">
+            <p class="clause-num">17.1</p>
+            <p>Estes Termos são regidos pelas leis da República Federativa do Brasil, especialmente pela LGPD, Marco Civil da Internet, Código de Defesa do Consumidor, Código Civil e demais normas aplicáveis.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">17.2</p>
+            <p>Fica eleito o foro da comarca do domicílio do ExameScan para dirimir quaisquer controvérsias decorrentes destes Termos, ressalvada a competência de juizado especial quando aplicável em favor do Usuário consumidor.</p>
+        </div>
+    </div>
+
+    <div class="section" id="cl18">
+        <h2 class="section-title">Cláusula 18ª — Da Integralidade e Invalidade Parcial</h2>
+        <div class="clause">
+            <p class="clause-num">18.1</p>
+            <p>Estes Termos constituem o acordo integral entre as partes com relação ao objeto aqui tratado, substituindo quaisquer negociações ou acordos anteriores.</p>
+        </div>
+        <div class="clause">
+            <p class="clause-num">18.2</p>
+            <p>Caso qualquer disposição destes Termos seja considerada inválida ou inexequível por decisão judicial transitada em julgado, as demais disposições permanecerão em pleno vigor e efeito.</p>
+        </div>
+    </div>
+
+    <div class="section" id="cl19">
+        <h2 class="section-title">Cláusula 19ª — Do Contato</h2>
+        <p>Para dúvidas, solicitações, exercício de direitos de titulares ou comunicação de incidentes, o Usuário deverá contatar o ExameScan pelos canais disponibilizados na seção de suporte do Dashboard. O ExameScan envidará seus melhores esforços para responder em prazo razoável.</p>
+    </div>
+
+    <!-- Closing statement -->
+    <div style="margin-top: 48px; padding: 24px; background: rgba(59,130,246,0.05); border: 1px solid rgba(59,130,246,0.12); border-radius: 16px; text-align: center;">
+        <p style="color: #cbd5e1; font-size: 0.85rem; font-weight: 600; line-height: 1.7;">
+            Ao utilizar a Plataforma ExameScan, o Usuário declara ter lido,<br>compreendido e aceito integralmente todos os termos e condições deste instrumento.
+        </p>
+        <p style="color: var(--muted); font-size: 0.75rem; margin-top: 12px;">Versão 1.0 · 06 de março de 2026</p>
+    </div>
+
+</div>
+
+<footer>
+    ExameScan &nbsp;·&nbsp; Todos os direitos reservados &nbsp;·&nbsp; Versão 1.0 · 2026
+</footer>
+
+</body>
+</html>
