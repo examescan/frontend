@@ -598,7 +598,8 @@
             </div>
             <div class="lc-body">
                 <p class="lc-title">Você já consumiu 80% dos seus créditos desse mês</p>
-                <p class="lc-sub">Não deixe um exame importante ficar sem análise — <strong>quem age agora não para no meio do diagnóstico.</strong></p>
+                <p class="lc-sub"><strong>Quem age agora não para no meio do diagnóstico.</strong></p>
+
                 <div class="lc-actions">
                     <button class="lc-btn-plans" onclick="dismissLowCreditsAlert(); openPlansModal();">Ver planos</button>
                     <button class="lc-btn-dismiss" onclick="dismissLowCreditsAlert()">Agora não</button>
@@ -1132,7 +1133,7 @@
             <h3 class="text-2xl font-bold mb-8 tracking-tight text-white">Processar novo exame</h3>
             <div class="space-y-6">
                 <div class="space-y-2">
-                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-[0.2em] ml-1">Identificação</label>
+                    <label class="text-[10px] uppercase font-bold text-gray-500 tracking-[0.2em] ml-1">Nome do exame</label>
                     <input type="text" id="new-doc-name" placeholder="Ex: Hemograma do Seu João" class="w-full p-4 rounded-2xl outline-none text-sm font-medium transition-all placeholder-gray-600">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
@@ -1149,7 +1150,7 @@
                 <div id="preview-area" class="preview-grid hidden max-h-40 overflow-y-auto"></div>
                 <div class="flex gap-4 pt-4">
                     <button onclick="closeModal('upload-modal')" class="flex-1 py-5 text-gray-500 hover:text-white font-bold text-xs uppercase tracking-widest transition-colors">Voltar</button>
-                    <button onclick="processDocument()" id="start-ia-btn" class="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white py-5 rounded-2xl font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-blue-900/50 disabled:opacity-50 btn-glow">Processar</button>
+                    <button onclick="processDocument()" id="start-ia-btn" class="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white py-5 rounded-2xl font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-blue-900/50 disabled:opacity-50 btn-glow">Transcrever</button>
                 </div>
             </div>
         </div>
@@ -1792,6 +1793,9 @@
 
             // Show persistent banner only if dashboard is visible and no modal is open
             syncBannerVisibility();
+
+            // Esconde o balão de 80% se estiver visível
+            _forceHideBalloon();
 
             // Glow all plan-opening buttons
             ['nav-plans-btn', 'menu-plans-btn'].forEach(id => {
@@ -2501,7 +2505,7 @@
                     });
                 }
             } catch (err) { notify('Erro no envio', 'error'); loadDocuments(); } 
-            finally { btn.disabled = false; btn.innerText = "Analisar com IA"; }
+            finally { btn.disabled = false; btn.innerText = "Transcrever"; }
         }
 
         function updateCardToFinished(docId) {
@@ -2890,22 +2894,51 @@
         }
 
         /* ---- Low-credits balloon ---- */
-        let _lowCreditsAlertShownThisSession = false;
+        let _lastKnownPct = null;
+        let _lowCreditsDismissed = false;
 
-        function maybeShowLowCreditsAlert(pct) {
-            if (_lowCreditsAlertShownThisSession) return;
-            if (pct == null || pct > 20) return;
-            _lowCreditsAlertShownThisSession = true;
+        function syncLowCreditsBalloon() {
             const el = document.getElementById('low-credits-balloon');
+            // Nunca mostra se os créditos já esgotaram
+            if (creditsExhausted) { _forceHideBalloon(); return; }
+            // Esconde imediatamente enquanto qualquer modal estiver aberto
+            if (openModalsCount > 0) { _forceHideBalloon(); return; }
+            // Usuário já descartou explicitamente
+            if (_lowCreditsDismissed) return;
+            if (_lastKnownPct == null || _lastKnownPct > 20) return;
+            // Reexibe
+            el.style.display = 'block';
             el.classList.remove('lc-hide');
             el.classList.add('lc-show');
         }
 
-        function dismissLowCreditsAlert() {
+        // Esconde sem animação (usado quando modal abre ou créditos esgotam)
+        function _forceHideBalloon() {
             const el = document.getElementById('low-credits-balloon');
+            el.classList.remove('lc-show', 'lc-hide');
+            el.style.display = 'none';
+        }
+
+        function maybeShowLowCreditsAlert(pct) {
+            if (_lowCreditsDismissed) return;
+            if (creditsExhausted) return;
+            if (pct == null || pct > 20) return;
+            _lastKnownPct = pct;
+            syncLowCreditsBalloon();
+        }
+
+        function dismissLowCreditsAlert() {
+            _lowCreditsDismissed = true;
+            const el = document.getElementById('low-credits-balloon');
+            el.style.display = 'block';
+            el.style.zIndex = '0'; // evita sobreposição sobre modais durante a animação de saída
             el.classList.remove('lc-show');
             el.classList.add('lc-hide');
-            el.addEventListener('animationend', () => { el.style.display = 'none'; }, { once: true });
+            el.addEventListener('animationend', () => {
+                el.style.display = 'none';
+                el.style.zIndex = '';
+                el.classList.remove('lc-hide');
+            }, { once: true });
         }
 
         async function checkLowCredits() {
@@ -2915,6 +2948,10 @@
                 const rawPct = data.subscription && data.subscription.remaining_plan_percentage != null
                     ? parseFloat(data.subscription.remaining_plan_percentage) : null;
                 maybeShowLowCreditsAlert(rawPct);
+                // Se chegou a 0% de créditos restantes, dispara o estado de créditos esgotados
+                if (rawPct != null && rawPct <= 0) {
+                    triggerCreditsExhausted();
+                }
             } catch (e) {}
         }
 
@@ -2985,6 +3022,7 @@
             if (MODAL_IDS.includes(id)) {
                 openModalsCount++;
                 syncBannerVisibility();
+                syncLowCreditsBalloon();
             }
         }
         function closeModal(id) {
@@ -2992,6 +3030,7 @@
             if (MODAL_IDS.includes(id)) {
                 openModalsCount = Math.max(0, openModalsCount - 1);
                 syncBannerVisibility();
+                syncLowCreditsBalloon();
             }
             const scrollableArea = document.querySelector(`#${id} .overflow-y-auto`);
             if (scrollableArea) scrollableArea.scrollTop = 0;
@@ -3090,14 +3129,14 @@
                 color:#fff; font-weight:800; font-size:1.2rem;
                 letter-spacing:-0.03em; margin:0 0 8px;
                 font-family:'Plus Jakarta Sans',sans-serif;
-            ">Olá, bem-vindo ao ExameScan 👋</h2>
+            ">Bem-vindo ao ExameScan</h2>
 
             <!-- Welcome subtitle -->
             <p style="
                 color:#6b7280; font-size:0.82rem; line-height:1.65;
                 margin:0 0 28px;
             ">
-                Estamos felizes em ter você aqui. A partir de agora você tem acesso a uma plataforma pensada para tornar sua rotina com exames médicos mais ágil e inteligente.
+                Agora você faz parte de uma plataforma pensada para tornar sua rotina com exames mais ágil e inteligente.
             </p>
 
             <!-- Motion icon -->
