@@ -824,8 +824,14 @@
             @keyframes travel3GPU { 0%, 79%, 91%, 100% { transform: translateY(0); opacity: 0; } 82% { opacity: 1; } 90% { transform: translateY(120%); opacity: 0; } }
         }
     </style>
+
+    <!-- GTM carregado via JS após consentimento de cookies (ver fim do body) -->
 </head>
 <body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T747X8KP"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
 
     <div class="container">
         <nav>
@@ -842,7 +848,8 @@
             </div>
 
             <div class="cta-container">
-                <a href="/dashboard?criarConta=true" class="btn-main" id="heroBtn">
+                <a href="/dashboard?criarConta=true" class="btn-main" id="heroBtn"
+                   onclick="window.dataLayer=window.dataLayer||[];window.dataLayer.push({event:'clique_comecar_agora',local:'hero'});">
                     Começar Agora <i data-lucide="arrow-right" size="18"></i>
                 </a>
             </div>
@@ -1157,7 +1164,8 @@
         </section>
     </div>
 
-    <a href="/dashboard?criarConta=true" class="btn-floating" id="floatingCta">
+    <a href="/dashboard?criarConta=true" class="btn-floating" id="floatingCta"
+       onclick="window.dataLayer=window.dataLayer||[];window.dataLayer.push({event:'clique_comecar_agora',local:'floating'});">
         Começar Agora <i data-lucide="zap" size="18"></i>
     </a>
 
@@ -1246,5 +1254,109 @@
         observer.observe(document.getElementById('socialProof'));
         observer.observe(document.getElementById('processo-section'));
     </script>
+
+    <!-- Cookie Consent Banner -->
+    <div id="cookie-banner" style="
+        display: none;
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) scale(0.96);
+        z-index: 99999;
+        width: calc(100% - 40px);
+        max-width: 420px;
+        background: rgba(10, 10, 15, 0.96);
+        backdrop-filter: blur(32px);
+        -webkit-backdrop-filter: blur(32px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 28px;
+        padding: 32px 28px 28px;
+        box-shadow: 0 40px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(59,130,246,0.08);
+        animation: cookieIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        text-align: center;
+    ">
+        <!-- Título -->
+        <h3 style="
+            font-size: 1.05rem; font-weight: 800; color: #fff;
+            letter-spacing: -0.03em; margin-bottom: 16px;
+        ">Sua privacidade importa</h3>
+
+        <!-- Ícone -->
+        <div style="
+            width: 52px; height: 52px; border-radius: 16px; margin: 0 auto 18px;
+            background: rgba(59,130,246,0.12);
+            border: 1px solid rgba(59,130,246,0.25);
+            display: flex; align-items: center; justify-content: center;
+            color: #60a5fa;
+            box-shadow: 0 8px 24px rgba(59,130,246,0.15);
+        ">
+            <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+        </div>
+
+        <!-- Texto -->
+        <p style="font-size: 0.82rem; color: #6b7280; line-height: 1.7; margin-bottom: 24px;">
+            Usamos cookies para melhorar sua experiência, analisar o uso do site e otimizar nossos serviços.
+            Ao continuar, você concorda com nossa
+            <a href="/termosdeuso#privacidade" target="_blank" style="color: #60a5fa; text-decoration: none; font-weight: 600; border-bottom: 1px solid rgba(96,165,250,0.3);">Política de Privacidade</a>.
+        </p>
+
+        <!-- Botão único -->
+        <button onclick="cookieAceitar()" style="
+            width: 100%; padding: 14px;
+            border-radius: 14px; border: none;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #fff; font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.875rem; font-weight: 700;
+            letter-spacing: -0.01em; cursor: pointer;
+            box-shadow: 0 4px 20px rgba(59,130,246,0.35);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        " onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 8px 28px rgba(59,130,246,0.45)'"
+           onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 20px rgba(59,130,246,0.35)'">
+            Aceitar e continuar
+        </button>
+    </div>
+
+    <style>
+        @keyframes cookieIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(16px) scale(0.96); }
+            to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+        }
+    </style>
+
+    <script>
+        (function() {
+            const consent = localStorage.getItem('cookie_consent');
+            if (!consent) {
+                document.getElementById('cookie-banner').style.display = 'block';
+            } else {
+                carregarGTM();
+            }
+        })();
+
+        function carregarGTM() {
+            if (window._gtmLoaded) return;
+            window._gtmLoaded = true;
+            (function(w,d,s,l,i){
+                w[l]=w[l]||[];
+                w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
+                var f=d.getElementsByTagName(s)[0],
+                j=d.createElement(s),
+                dl=l!='dataLayer'?'&l='+l:'';
+                j.async=true;
+                j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+                f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','GTM-T747X8KP');
+        }
+
+        function cookieAceitar() {
+            localStorage.setItem('cookie_consent', 'all');
+            document.getElementById('cookie-banner').style.display = 'none';
+            carregarGTM();
+        }
+    </script>
+
 </body>
 </html>
