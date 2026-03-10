@@ -15,6 +15,14 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T747X8KP');</script>
+    <!-- End Google Tag Manager -->
+
     <script>
         tailwind.config = {
             theme: {
@@ -585,6 +593,11 @@
     </style>
 </head>
 <body class="antialiased">
+
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T747X8KP"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
 
     <div id="toast-container"></div>
 
@@ -1926,7 +1939,12 @@
                         token = data.token;
                         sessionStorage.setItem('token', token);
                         sessionStorage.setItem('userEmail', email);
-                        if (!isLogin) notify('Conta criada com sucesso!', 'success');
+                        if (!isLogin) {
+                            notify('Conta criada com sucesso!', 'success');
+                            // GTM — evento de criação de conta via email
+                            window.dataLayer = window.dataLayer || [];
+                            window.dataLayer.push({ event: 'criar_conta', metodo: 'email' });
+                        }
                         checkTermsAndShowDashboard(data.user || null);
                     } else {
                         isLogin = true; toggleAuthMode(); notify('Conta criada! Por favor, faça login.', 'success');
@@ -1972,6 +1990,9 @@
                                 sessionStorage.setItem('userEmail', (data.user && data.user.email) || '');
                                 if (res.status === 201) {
                                     notify('Conta criada com Google! Bem-vindo(a)!', 'success');
+                                    // GTM — evento de criação de conta via Google
+                                    window.dataLayer = window.dataLayer || [];
+                                    window.dataLayer.push({ event: 'criar_conta', metodo: 'google' });
                                     checkTermsAndShowDashboard(data.user || null);
                                     setTimeout(() => openPlansModal(), 600);
                                 } else {
