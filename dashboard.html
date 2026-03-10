@@ -2258,6 +2258,23 @@
         async function handleSubscribe(planId) {
             clearCreditsExhausted();
             const interval = currentBilling === 'anual' ? 'year' : 'month';
+
+            // GTM — evento de intenção de compra
+            const nomes = { 0: 'essencial', 1: 'basic', 2: 'pro' };
+            const valores = {
+                0: { year: 0,  month: 0  },
+                1: { year: 29, month: 39 },
+                2: { year: 59, month: 79 }
+            };
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+                event: 'intencao_compra',
+                plano: nomes[planId] || `plano_${planId}`,
+                periodo: currentBilling,
+                valor: valores[planId]?.[interval] ?? 0,
+                event_label: `${nomes[planId]}_${currentBilling}`
+            });
+
             const btn = document.getElementById(`btn-plan-${planId}`);
             const originalHTML = btn.innerHTML;
             btn.disabled = true;
