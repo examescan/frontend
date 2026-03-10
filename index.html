@@ -1330,7 +1330,12 @@
         (function() {
             const consent = localStorage.getItem('cookie_consent');
             if (!consent) {
-                document.getElementById('cookie-banner').style.display = 'block';
+                // Aguarda 3s após o carregamento completo da página
+                window.addEventListener('load', function() {
+                    setTimeout(function() {
+                        document.getElementById('cookie-banner').style.display = 'block';
+                    }, 3000);
+                });
             } else {
                 carregarGTM();
             }
