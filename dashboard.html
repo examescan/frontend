@@ -2260,11 +2260,11 @@
             const interval = currentBilling === 'anual' ? 'year' : 'month';
 
             // GTM — evento de intenção de compra
-            const nomes = { 0: 'essencial', 1: 'basic', 2: 'pro' };
+            const nomes = { 0: 'free', 1: 'essencial', 2: 'pro' };
             const valores = {
-                0: { year: 0,  month: 0  },
-                1: { year: 29, month: 39 },
-                2: { year: 59, month: 79 }
+                0: { year: 0,   month: 0  },
+                1: { year: 348, month: 39 },
+                2: { year: 708, month: 79 }
             };
             window.dataLayer = window.dataLayer || [];
             window.dataLayer.push({
