@@ -9,6 +9,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T747X8KP');</script>
+    <!-- End Google Tag Manager -->
+
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -191,6 +199,43 @@
     </style>
 </head>
 <body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T747X8KP"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <!-- Cookie Consent Banner (fallback) -->
+    <div id="cookie-banner" style="
+        display:none; position:fixed; bottom:24px; left:50%;
+        transform:translateX(-50%) scale(0.96); z-index:99999;
+        width:calc(100% - 40px); max-width:420px;
+        background:rgba(10,10,15,0.96); backdrop-filter:blur(32px);
+        border:1px solid rgba(255,255,255,0.08); border-radius:28px;
+        padding:32px 28px 28px;
+        box-shadow:0 40px 80px rgba(0,0,0,0.7);
+        animation:cookieIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
+        font-family:'Plus Jakarta Sans',sans-serif; text-align:center;
+    ">
+        <h3 style="font-size:1.05rem;font-weight:800;color:#fff;letter-spacing:-0.03em;margin-bottom:16px;">Sua privacidade importa</h3>
+        <div style="width:52px;height:52px;border-radius:16px;margin:0 auto 18px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);display:flex;align-items:center;justify-content:center;color:#60a5fa;">
+            <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+        </div>
+        <p style="font-size:0.82rem;color:#6b7280;line-height:1.7;margin-bottom:24px;">
+            Usamos cookies para melhorar sua experiência e analisar o uso do site.
+            <a href="/termosdeuso#privacidade" target="_blank" style="color:#60a5fa;text-decoration:none;font-weight:600;">Política de Privacidade</a>.
+        </p>
+        <button onclick="cookieAceitar()" style="width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.875rem;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(59,130,246,0.35);">
+            Aceitar e continuar
+        </button>
+    </div>
+    <style>
+        @keyframes cookieIn {
+            from { opacity:0; transform:translateX(-50%) translateY(16px) scale(0.96); }
+            to   { opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+        }
+    </style>
 
     <div class="confetti-wrap" id="cw"></div>
 
@@ -249,6 +294,83 @@
                     setTimeout(() => el.remove(), (delay + dur + 0.3) * 1000);
                 }
             }, 500);
+        })();
+
+        // ── GTM + Conversões ─────────────────────────────────────────────
+
+        function carregarGTM() {
+            if (window._gtmLoaded) return;
+            window._gtmLoaded = true;
+            (function(w,d,s,l,i){
+                w[l]=w[l]||[];
+                w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});
+                var f=d.getElementsByTagName(s)[0],
+                j=d.createElement(s),
+                dl=l!='dataLayer'?'&l='+l:'';
+                j.async=true;
+                j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+                f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','GTM-T747X8KP');
+        }
+
+        function cookieAceitar() {
+            localStorage.setItem('cookie_consent', 'all');
+            document.getElementById('cookie-banner').style.display = 'none';
+            iniciarConversao();
+        }
+
+        function iniciarConversao() {
+            carregarGTM();
+
+            // Lê parâmetros da URL
+            const params  = new URLSearchParams(window.location.search);
+            const plan    = params.get('plan');   // '1' = essencial, '2' = pro
+            const period  = params.get('period'); // 'month' ou 'year'
+
+            // Mapa de planos e valores
+            const nomes  = { '1': 'essencial', '2': 'pro' };
+            const valores = {
+                '1': { month: 39,  year: 348  },
+                '2': { month: 79,  year: 708  }
+            };
+
+            const nomePlano  = nomes[plan]   || `plano_${plan}`;
+            const periodo    = period === 'year' ? 'anual' : 'mensal';
+            const valor      = valores[plan]?.[period] ?? 0;
+
+            // Dispara evento de conversão pro GTM
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+                event:       'assinatura_confirmada',
+                plano:        nomePlano,
+                periodo:      periodo,
+                valor:        valor,
+                currency:     'BRL',
+                event_label: `${nomePlano}_${periodo}`
+            });
+        }
+
+        // Verifica consentimento antes de disparar
+        (function() {
+            const consent = localStorage.getItem('cookie_consent');
+            if (consent === 'all') {
+                iniciarConversao();
+            } else {
+                // Tenta via JWT
+                const savedToken = sessionStorage.getItem('token');
+                if (savedToken) {
+                    try {
+                        const decoded = JSON.parse(atob(savedToken.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+                        if (decoded.terms_accepted) {
+                            localStorage.setItem('cookie_consent', 'all');
+                            iniciarConversao();
+                            return;
+                        }
+                    } catch(e) {}
+                }
+                // Sem consentimento — mostra banner
+                document.getElementById('cookie-banner').style.display = 'block';
+            }
         })();
     </script>
 </body>
