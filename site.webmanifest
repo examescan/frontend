@@ -1,6 +1,7 @@
 {
   "name": "ExameScan | Scanner Médico",
   "short_name": "ExameScan",
+  "start_url": "/dashboard",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
