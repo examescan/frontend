@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="/favicon-inject.js"></script>
     <title>ExameScan | Scanner Médico Inteligente</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1314,7 +1315,10 @@
 
     <script>
         const API_URL = 'https://examescan-797842013532.us-east1.run.app';
-        let token = sessionStorage.getItem('token');
+        // PWA vs Web: usa localStorage no PWA instalado, sessionStorage no browser
+        const isPWA = window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
+        const authStorage = isPWA ? localStorage : sessionStorage;
+        let token = authStorage.getItem('token');
         let isLogin = true;
         let selectedFiles = [];
         let cameraStream = null;
@@ -1924,8 +1928,8 @@
                 if (res.ok) {
                     if (data.token) {
                         token = data.token;
-                        sessionStorage.setItem('token', token);
-                        sessionStorage.setItem('userEmail', email);
+                        authStorage.setItem('token', token);
+                        authStorage.setItem('userEmail', email);
                         if (!isLogin) notify('Conta criada com sucesso!', 'success');
                         checkTermsAndShowDashboard(data.user || null);
                     } else {
@@ -1968,8 +1972,8 @@
                             const data = await res.json();
                             if (res.ok && data.token) {
                                 token = data.token;
-                                sessionStorage.setItem('token', token);
-                                sessionStorage.setItem('userEmail', (data.user && data.user.email) || '');
+                                authStorage.setItem('token', token);
+                                authStorage.setItem('userEmail', (data.user && data.user.email) || '');
                                 if (res.status === 201) {
                                     notify('Conta criada com Google! Bem-vindo(a)!', 'success');
                                     checkTermsAndShowDashboard(data.user || null);
@@ -2025,8 +2029,8 @@
             eventSource = new EventSource(`${API_URL}/api/auth/login-qr/stream?uuid=${uuid}`);
             eventSource.addEventListener('login', (e) => {
                 const data = JSON.parse(e.data);
-                sessionStorage.setItem('token', data.token);
-                sessionStorage.setItem('userEmail', data.email || 'Usuário');
+                authStorage.setItem('token', data.token);
+                authStorage.setItem('userEmail', data.email || 'Usuário');
                 location.reload(); 
             });
         }
@@ -2136,7 +2140,7 @@
 
         async function openSettingsModal() {
             // Populate email + avatar initials
-            const email = sessionStorage.getItem('userEmail') || '—';
+            const email = authStorage.getItem('userEmail') || '—';
             document.getElementById('settings-email').innerText = email;
             const initials = email !== '—' ? email.split('@')[0].slice(0, 2).toUpperCase() : '?';
             document.getElementById('settings-avatar-initials').innerText = initials;
@@ -2310,7 +2314,7 @@
             document.getElementById('dashboard').classList.remove('hidden');
             dashboardVisible = true;
             syncBannerVisibility();
-            document.getElementById('user-display-name').innerText = sessionStorage.getItem('userEmail') || 'Usuário';
+            document.getElementById('user-display-name').innerText = authStorage.getItem('userEmail') || 'Usuário';
             loadDocuments();
             // Check credits after login
             setTimeout(() => checkLowCredits(), 1500);
@@ -3056,7 +3060,7 @@
                 updatePlanButtons();
             }
         }
-        function logout() { dashboardVisible = false; syncBannerVisibility(); sessionStorage.removeItem('token'); sessionStorage.removeItem('userEmail'); location.reload(); }
+        function logout() { dashboardVisible = false; syncBannerVisibility(); authStorage.removeItem('token'); authStorage.removeItem('userEmail'); location.reload(); }
         window.onclick = function(e) { if (!e.target.closest('nav')) { const m = document.getElementById('profile-menu'); if(m) m.classList.add('hidden-scale'); } }
     </script>    <!-- Stripe redirect full-screen overlay -->
     <div id="stripe-redirect-overlay" class="opacity-0 pointer-events-none" style="
@@ -3257,7 +3261,7 @@
                     // Update token with new one that has terms_accepted: true
                     if (data.token) {
                         token = data.token;
-                        sessionStorage.setItem('token', token);
+                        authStorage.setItem('token', token);
                     }
                     // Aceite dos termos = consentimento de cookies
                     localStorage.setItem('cookie_consent', 'all');
@@ -3360,7 +3364,7 @@
             }
 
             // 2. Tem token JWT → verifica se aceitou os termos
-            const savedToken = sessionStorage.getItem('token');
+            const savedToken = authStorage.getItem('token');
             if (savedToken) {
                 try {
                     const decoded = JSON.parse(atob(savedToken.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
