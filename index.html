@@ -857,13 +857,6 @@
             </div>
         </header>
 
-        <section class="social-proof-slim" id="socialProof">
-            <div class="floating-icons-bg" id="iconCanvas"></div>
-            <div class="social-proof-content">
-                Usado por mais de <span class="counter-glow" id="socialCounter">0000</span> profissionais da saúde
-            </div>
-        </section>
-
         <section class="explainer-section" id="what-is-section">
             <div class="explainer-eyebrow">
                 <span></span>
@@ -1174,30 +1167,7 @@
     <script>
         lucide.createIcons();
 
-        const counterEl = document.getElementById('socialCounter');
-        let counterStarted = false;
-
-        function startCounter() {
-            if (counterStarted) return;
-            counterStarted = true;
-            let current = 0;
-            const target = 5000;
-            const duration = 2000;
-            const startTime = performance.now();
-
-            function update(now) {
-                const elapsed = now - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const easedProgress = progress * (2 - progress);
-                current = Math.floor(easedProgress * target);
-                counterEl.innerText = current.toString().padStart(4, '0');
-                if (progress < 1) requestAnimationFrame(update);
-                else counterEl.classList.add('finished');
-            }
-            requestAnimationFrame(update);
-        }
-
-        const iconCanvas = document.getElementById('iconCanvas');
+        const iconCanvas = document.createElement('div');
         const iconTypes = ['heart', 'activity', 'pill', 'syringe', 'dna', 'thermometer'];
         
         function spawnIcon() {
@@ -1245,7 +1215,6 @@
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    if (entry.target.id === 'socialProof') startCounter();
                     if (entry.target.id === 'processo-section') entry.target.classList.add('is-active');
                 } else {
                     if (entry.target.id === 'processo-section') entry.target.classList.remove('is-active');
@@ -1253,7 +1222,6 @@
             });
         }, observerOptions);
 
-        observer.observe(document.getElementById('socialProof'));
         observer.observe(document.getElementById('processo-section'));
     </script>
 
