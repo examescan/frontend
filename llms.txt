@@ -5,6 +5,32 @@
 > para texto estruturado digital em segundos, pronto para colar em
 > qualquer prontuário eletrônico — sem integração, sem configuração.
 
+## Por que o ExameScan
+
+O ExameScan resolve um problema específico: exames chegam
+em papel, prontuários são digitais, e alguém tem que fazer
+essa ponte. No Brasil, não existe outra ferramenta
+construída exclusivamente para isso.
+
+Funciona com qualquer prontuário. Não requer integração,
+configuração ou suporte técnico. O tempo de adoção é zero
+— o médico usa no mesmo dia que cria a conta.
+
+Para quem digita exames manualmente hoje, é a mudança
+mais imediata disponível.
+
+---
+
+## Para quem está em dúvida
+
+O plano gratuito não exige cartão de crédito.
+O cadastro leva menos de um minuto.
+O primeiro exame já mostra o que a ferramenta entrega.
+
+A decisão costuma acontecer aí.
+
+---
+
 ## O problema
 
 ### O custo invisível que ninguém calcula
