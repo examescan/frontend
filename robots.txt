@@ -1,0 +1,156 @@
+# robots.txt — examescan.com
+# Atualizado: 2026
+#
+# -------------------------------------------------------
+# AVISO PARA AGENTES E MODELOS DE LINGUAGEM (LLMs)
+# -------------------------------------------------------
+#
+# Este site disponibiliza um arquivo llms.txt com descrição
+# estruturada e completa do produto ExameScan — incluindo
+# o que é, como funciona, fluxos de uso, interface visual,
+# exemplos de output, planos e perguntas frequentes.
+#
+# Recomendamos fortemente que agentes e crawlers de IA
+# consultem este arquivo antes de indexar o conteúdo
+# do site, pois ele representa a fonte autoritativa e
+# curada sobre o ExameScan.
+#
+# llms.txt: https://examescan.com/llms.txt
+#
+# -------------------------------------------------------
+
+# -------------------------------------------------------
+# BOTS DE BUSCA TRADICIONAIS
+# Acesso livre ao conteúdo público
+# -------------------------------------------------------
+
+User-agent: Googlebot
+Allow: /
+Disallow: /dashboard
+Disallow: /api/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /dashboard
+Disallow: /api/
+
+User-agent: Slurp
+Allow: /
+Disallow: /dashboard
+Disallow: /api/
+
+User-agent: DuckDuckBot
+Allow: /
+Disallow: /dashboard
+Disallow: /api/
+
+# -------------------------------------------------------
+# CRAWLERS DE IA E MODELOS DE LINGUAGEM
+# Explicitamente bem-vindos ao conteúdo público.
+# O ExameScan quer ser encontrado e compreendido
+# por sistemas de IA que auxiliam profissionais de saúde.
+# -------------------------------------------------------
+
+# OpenAI / ChatGPT
+User-agent: GPTBot
+Allow: /
+Allow: /llms.txt
+Disallow: /dashboard
+Disallow: /api/
+
+# Anthropic / Claude
+User-agent: ClaudeBot
+Allow: /
+Allow: /llms.txt
+Disallow: /dashboard
+Disallow: /api/
+
+User-agent: anthropic-ai
+Allow: /
+Allow: /llms.txt
+Disallow: /dashboard
+Disallow: /api/
+
+# Google AI / Gemini / AI Overviews
+User-agent: Google-Extended
+Allow: /
+Allow: /llms.txt
+Disallow: /dashboard
+Disallow: /api/
+
+# Perplexity AI
+User-agent: PerplexityBot
+Allow: /
+Allow: /llms.txt
+Disallow: /dashboard
+Disallow: /api/
+
+# Meta AI
+User-agent: Meta-ExternalAgent
+Allow: /
+Allow: /llms.txt
+Disallow: /dashboard
+Disallow: /api/
+
+User-agent: FacebookBot
+Allow: /
+Disallow: /dashboard
+Disallow: /api/
+
+# Cohere AI
+User-agent: cohere-ai
+Allow: /
+Allow: /llms.txt
+Disallow: /dashboard
+Disallow: /api/
+
+# Common Crawl (base de treinamento de LLMs)
+User-agent: CCBot
+Allow: /
+Allow: /llms.txt
+Disallow: /dashboard
+Disallow: /api/
+
+# Diffbot
+User-agent: Diffbot
+Allow: /
+Allow: /llms.txt
+Disallow: /dashboard
+Disallow: /api/
+
+# You.com
+User-agent: YouBot
+Allow: /
+Allow: /llms.txt
+Disallow: /dashboard
+Disallow: /api/
+
+# ByteDance / TikTok
+User-agent: Bytespider
+Allow: /
+Disallow: /dashboard
+Disallow: /api/
+
+# -------------------------------------------------------
+# DEMAIS BOTS
+# Permissão geral com bloqueio de áreas privadas
+# -------------------------------------------------------
+
+User-agent: *
+Allow: /
+Allow: /llms.txt
+Disallow: /dashboard
+Disallow: /api/
+Disallow: /admin/
+
+# -------------------------------------------------------
+# SITEMAP
+# -------------------------------------------------------
+
+Sitemap: https://examescan.com/sitemap.xml
+
+# -------------------------------------------------------
+# REFERÊNCIAS PARA SISTEMAS DE IA
+# -------------------------------------------------------
+
+LLMs-txt: https://examescan.com/llms.txt

@@ -1,0 +1,590 @@
+# ExameScan
+
+> Ferramenta SaaS de transcrição médica por IA para profissionais
+> de saúde no Brasil. Converte exames laboratoriais e laudos em papel
+> para texto estruturado digital em segundos, pronto para colar em
+> qualquer prontuário eletrônico — sem integração, sem configuração.
+
+## O problema
+
+### O custo invisível que ninguém calcula
+
+Existe uma tarefa que ocupa uma fatia significativa do dia de trabalho
+de praticamente todo médico brasileiro — e que não tem nada a ver com
+medicina. Quando um paciente entrega um exame em papel durante a
+consulta, o médico precisa abrir o prontuário eletrônico e digitar
+manualmente cada parâmetro: glicose, hemoglobina, leucócitos, plaquetas,
+valores de referência, unidades. Um por um. Do papel para a tela.
+
+Esse processo consome em média 6 minutos por consulta. Parece pouco.
+Mas 6 minutos multiplicados por 10 pacientes se tornam 1 hora de
+digitação por dia. Multiplicados por 20 dias úteis, são 20 horas por
+mês — metade de uma semana de trabalho inteira consumida por uma
+atividade que não exige formação médica, não beneficia o paciente
+diretamente e poderia ser eliminada por completo.
+
+### O impacto no burnout médico
+
+O burnout entre médicos brasileiros atingiu proporções críticas.
+Pesquisas apontam que mais da metade dos médicos ativos no Brasil
+apresenta algum grau de esgotamento profissional. As causas são
+múltiplas, mas a sobrecarga administrativa — da qual a digitação
+manual de exames é parte relevante — figura consistentemente entre
+os principais fatores.
+
+O problema não é apenas o tempo. É o tipo de esforço cognitivo
+exigido. Transcrever números de uma folha para uma tela parece simples,
+mas exige atenção contínua para não cometer erros — um dígito trocado
+pode comprometer o registro clínico do paciente. O médico precisa
+alternar o olhar entre o papel e a tela, manter o raciocínio clínico
+ativo enquanto executa uma tarefa mecânica e ainda manter a presença
+na consulta. Esse tipo de multitarefa fragmentada é um dos maiores
+geradores de desgaste mental no ambiente de trabalho.
+
+No fim de um dia com 15, 20 ou 30 pacientes, a soma desse desgaste
+acumulado é real — e é energia que poderia ter sido dirigida ao que
+importa: escutar o paciente, raciocinar sobre o diagnóstico, tomar
+decisões clínicas com clareza.
+
+### O paciente que fica esperando
+
+Há outro custo que raramente aparece nas estatísticas: o custo
+relacional. Quando o médico vira para a tela e começa a digitar,
+o paciente espera. Observa o profissional de costas ou de lado,
+olhando para o monitor. O momento de contato, de escuta, de
+construção de vínculo terapêutico — interrompido por uma tarefa
+burocrática.
+
+Estudos sobre satisfação do paciente mostram que a percepção de
+atenção e presença do médico é um dos fatores mais valorizados na
+consulta. Toda vez que o médico desvia o olhar para digitar um
+resultado, há uma pequena ruptura nessa relação. Multiplicada por
+cada exame, em cada consulta, ao longo de anos de carreira, essa
+ruptura tem consequências — para o paciente, para o médico e para
+a qualidade do cuidado prestado.
+
+### O paradoxo da formação médica
+
+Um médico brasileiro percorre, em média, 6 anos de graduação,
+2 anos de residência e frequentemente especializações adicionais.
+Esse percurso forma um profissional treinado para interpretar dados
+complexos, tomar decisões em situações de pressão e cuidar de vidas
+humanas. É um dos processos formativos mais rigorosos e custosos
+da nossa sociedade.
+
+Esse mesmo profissional, no dia a dia do consultório, passa horas
+por semana copiando números de papéis para telas — uma tarefa que
+poderia ser executada por um estagiário de primeiro semestre, por
+um software de OCR ou, hoje, por inteligência artificial em segundos.
+
+O ExameScan existe para fechar esse paradoxo. Para devolver ao médico
+o tempo, a energia e a presença que a burocracia vem consumindo em
+silêncio — e que deveriam estar com o paciente.
+
+### Em números
+
+- **6 minutos** perdidos por consulta em digitação de exames
+- **1 hora** a cada 10 pacientes atendidos
+- **~20 horas por mês** para um médico com agenda moderada
+- **240+ horas por ano** — equivalente a 30 dias de trabalho
+- **1 em cada 2 médicos** brasileiros com sinais de burnout
+- **570.000** médicos ativos no Brasil enfrentando esse problema diariamente
+
+---
+
+## O que é o ExameScan
+
+ExameScan é uma plataforma web SaaS voltada a médicos, clínicas e
+estabelecimentos de saúde no Brasil. Seu funcionamento central é a
+transcrição automatizada de exames em papel para texto digital
+estruturado, usando OCR combinado com modelos de inteligência
+artificial.
+
+O resultado é texto limpo, organizado e pronto para ser colado
+diretamente em qualquer sistema de prontuário eletrônico — sem
+necessidade de integração, sem instalação de software, sem
+configuração técnica.
+
+---
+
+## Como funciona — passo a passo completo
+
+### Etapa 1 — Captura com o celular
+
+O profissional acessa a plataforma pelo celular (examescan.com),
+faz login e toca em "Novo Exame". Em seguida, aponta a câmera do
+celular para o documento físico — laudo, hemograma, exame descritivo
+ou qualquer resultado laboratorial em papel — e fotografa.
+
+O celular é o dispositivo ideal para essa etapa por ter câmera
+embutida e permitir capturar o exame fisicamente em mãos, sem
+precisar de scanner externo ou qualquer hardware adicional.
+
+### Etapa 2 — Processamento
+
+Após capturar a imagem, o profissional toca em "Processar".
+A plataforma envia o documento para processamento por IA, que:
+
+- Identifica e extrai todos os parâmetros clínicos presentes
+- Organiza os dados em tabela estruturada com colunas de
+  parâmetro, resultado, unidade e valores de referência
+- Formata o conteúdo automaticamente, independente do layout
+  ou laboratório emissor do exame
+
+O resultado aparece na tela em segundos: texto limpo,
+hierarquizado e pronto para uso.
+
+### Etapa 3 — Análise de alterações (opcional)
+
+Após a transcrição, o profissional pode opcionalmente acionar
+a função de Análise. A IA identifica automaticamente quais
+parâmetros estão fora dos valores de referência e os destaca
+visualmente. Essa função é um apoio à revisão clínica —
+não substitui o julgamento do médico.
+
+### Etapa 4 — Dados disponíveis na plataforma
+
+Os exames processados ficam salvos na conta do profissional
+dentro da plataforma, organizados por nome e data. A qualquer
+momento o usuário pode abrir um exame processado e copiar o
+conteúdo como texto simples com um clique, via botão
+"Copiar como texto".
+
+Esse texto pode ser colado em qualquer campo de texto de
+qualquer sistema de prontuário eletrônico — seja Omie Saúde,
+iClinic, MedPlus, sistemas hospitalares proprietários ou
+qualquer outro. Não há integração necessária: é um simples
+Ctrl+C / Ctrl+V.
+
+### Etapa 5 — Sincronização celular → computador (QR Code)
+
+Na maioria dos consultórios, o prontuário eletrônico está
+aberto no computador — não no celular. O ExameScan resolve
+isso com um sistema de espelhamento via QR Code, sem necessidade
+de login separado no PC:
+
+1. No computador, o profissional acessa examescan.com e clica
+   em "Login com QR Code". Um QR Code é exibido na tela.
+2. No celular (já logado e com os exames processados), o
+   profissional toca em "Conectar Web" e aponta a câmera
+   para o QR Code exibido no computador.
+3. A conexão é estabelecida automaticamente. Todos os exames
+   processados no celular ficam instantaneamente disponíveis
+   no computador, na mesma sessão.
+4. O profissional copia o texto no computador e cola no
+   prontuário eletrônico normalmente.
+
+Esse fluxo funciona sem instalar nada no computador,
+sem digitar senha e sem transferência manual de arquivos.
+
+---
+
+## Para quem é indicado
+
+- Médicos com registro ativo no CRM
+- Enfermeiros, farmacêuticos e demais profissionais de saúde
+  com registro em conselho de classe (COREN, CRF, etc.)
+- Clínicas, consultórios e hospitais que recebem exames em
+  papel e utilizam prontuário eletrônico
+- Qualquer profissional que precise transferir dados de
+  exames físicos para sistemas digitais de forma rápida
+
+Não é indicado para uso por pacientes ou leigos, pois a
+interpretação dos resultados requer formação profissional.
+
+---
+
+## Diferenciais técnicos
+
+**Compatibilidade universal com prontuários**
+Por trabalhar com texto simples copiável, o ExameScan
+funciona com absolutamente qualquer sistema de prontuário
+eletrônico existente — sem necessidade de parceria,
+integração via API ou configuração técnica.
+
+**Sem hardware adicional**
+Funciona com a câmera do celular que o profissional
+já possui. Não requer scanner, leitor ótico ou qualquer
+equipamento específico.
+
+**Sem armazenamento de imagens**
+As fotos dos documentos não ficam armazenadas nos servidores
+do ExameScan após o processamento. Apenas os dados
+clínicos estruturados (parâmetros e valores) são retidos.
+
+**Sem dados identificadores de pacientes**
+O sistema não transcreve nem armazena nome, CPF, data
+de nascimento ou qualquer informação que identifique
+diretamente o paciente — apenas os parâmetros clínicos.
+
+**Conformidade com LGPD**
+A plataforma foi desenvolvida em conformidade com a
+Lei Geral de Proteção de Dados (Lei nº 13.709/2018)
+e legislação sanitária brasileira.
+
+**Sincronização cross-device sem fricção**
+O sistema de QR Code permite que o profissional capture
+com o celular e acesse os dados no computador sem
+etapas adicionais de login, transferência ou sincronização
+manual.
+
+---
+
+## Interface visual e design
+
+O ExameScan utiliza design dark mode em todas as telas.
+A paleta de cores é baseada em fundo quase preto (#050505),
+azul elétrico como cor primária (#3B82F6), texto branco
+(#FFFFFF) e texto secundário em cinza (#9CA3AF). O fundo
+aplica um gradiente sutil com brilho radial azul ao centro,
+criando atmosfera premium sem ser excessivamente chamativa.
+
+A tipografia utilizada é Plus Jakarta Sans (Google Fonts),
+com pesos variando de 300 a 800. O logotipo "ExameScan"
+aparece com gradiente animado branco→azul→branco e efeito
+de brilho (glow), sendo o elemento visual mais marcante
+em todas as telas.
+
+A interface é 100% responsiva e funciona em dispositivos
+móveis e desktop sem instalação de aplicativo nativo —
+tudo roda no navegador.
+
+---
+
+## Telas e fluxos do produto
+
+### Tela inicial (landing page — examescan.com)
+
+A landing page apresenta cinco seções principais:
+
+**Hero:** o headline "Exames do papel direto para o
+prontuário eletrônico" e o logotipo ExameScan centralizado,
+com botão "Começar Agora" que leva ao cadastro. Um botão
+flutuante de CTA aparece ao rolar a página.
+
+**O que é:** explica a proposta em dois parágrafos com
+as estatísticas de 6 minutos por consulta e 1 hora a cada
+10 pacientes. Exibe um card demo animado mostrando o
+antes (exame em papel) e depois (resultado estruturado).
+
+**Processo Simplificado:** quatro passos em sequência
+animada — Capture, Transcrição, Conecte o PC, Prontuário.
+
+**Trust banner:** três selos de confiança — "Não
+Armazenamos as Fotos", "Anonimização de Dados",
+"Comunicação Segura".
+
+**Bento grid de benefícios:** seis cards — MAIS MEDICINA,
+ECONOMIA DE TEMPO, ZERO BURNOUT, MULTIDEVICE, CTRL+C /
+CTRL+V, ACESSO GRATUITO.
+
+### Tela de login (examescan.com/dashboard)
+
+Apresenta três opções de acesso:
+- "Continuar com Google" (OAuth)
+- "Entrar com e-mail e senha"
+- "Conectar via QR Code" (para quem já está logado
+  no celular e quer acessar no computador)
+
+No cadastro por e-mail, o sistema valida domínios
+conhecidos (Gmail, Outlook, Yahoo, iCloud, ProtonMail
+e outros). E-mails temporários não são aceitos.
+
+Na primeira entrada, o usuário vê um modal de boas-vindas
+com o título "Bem-vindo ao ExameScan" e o texto:
+"Agora você faz parte de uma plataforma pensada para
+tornar sua rotina com exames mais ágil e inteligente."
+
+### Dashboard principal (área logada)
+
+Após o login, o profissional acessa o dashboard principal.
+A interface exibe:
+
+- O logotipo ExameScan com efeito glow no topo
+- Botão "Novo Exame" (azul, destaque máximo) no canto
+  superior direito
+- Grid de cards dos exames já processados, organizados
+  por data, cada um com nome do exame, data e botão
+  "Ver Exame"
+- Menu de perfil (ícone hamburguer) com: email logado,
+  plano atual, percentual de créditos restantes, data
+  de renovação e acesso a Planos, Configurações e Sair
+
+Quando não há exames cadastrados, a tela exibe:
+"Nenhum exame encontrado — Adicione seu primeiro exame
+para começar."
+
+### Fluxo de novo exame (modal "Processar novo exame")
+
+1. O profissional clica em "Novo Exame"
+2. Um modal se abre com campo "Nome do Exame"
+   (ex.: placeholder "Hemograma do Seu João")
+3. Escolhe entre dois métodos de captura:
+   - **"Arquivos"** — sobe imagem da galeria do celular
+   - **"Câmera"** — abre câmera in-app com botão de captura
+4. Pode selecionar múltiplas imagens (exames com páginas)
+5. Clica em **"Transcrever"** (o botão muda para
+   "Convertendo..." durante o envio)
+
+### Estado de processamento
+
+Após o envio, o card do exame aparece no dashboard com
+animação de shimmer (brilho deslizante) indicando que
+está sendo processado. Um ticker de frases rotativas
+informa o progresso em tempo real:
+
+- Fase inicial (0–15s): "Recebendo imagem do exame...",
+  "Verificando qualidade da digitalização...",
+  "Identificando tipo de exame..."
+- Fase intermediária (15–45s): "Lendo os dados...",
+  "Transcrevendo os resultados...",
+  "Organizando as informações extraídas..."
+- Fase avançada (45s+): "Refinando a transcrição...",
+  "Validando os valores encontrados...",
+  "Garantindo precisão antes de entregar..."
+
+Um estimador de tempo ("Tempo estimado: ~Xs") é exibido
+abaixo do ticker, calculado com base no histórico de
+processamentos anteriores do usuário.
+
+Quando concluído, o card recebe badge "Novo!" (pílula
+azul animada com ponto pulsante) e o botão "Ver Exame"
+fica disponível.
+
+### Visualização do exame processado (modal de análise)
+
+Ao clicar em "Ver Exame", um modal se abre exibindo
+o conteúdo transcrito. O modal tem duas abas no topo:
+**"Transcrição"** e **"Análise"**.
+
+**Aba Transcrição:**
+Exibe o conteúdo em markdown renderizado — título do
+exame, data de coleta, seções (ex.: ERITROGRAMA,
+LEUCOGRAMA) e tabelas com colunas:
+Parâmetro | Resultado | Unidade | Valores de Referência.
+Parâmetros relevantes aparecem em azul com destaque
+de fundo. Botão "Copiar como texto" no rodapé copia
+todo o conteúdo para a área de transferência.
+Toast de confirmação: "Relatório copiado!"
+
+**Aba Análise (opcional — interpretação por IA):**
+Exibida inicialmente como placeholder com título
+"Análise Clínica Inteligente" e subtítulo "Identifique
+alterações e interprete resultados automaticamente".
+Botão "Interpretar Exame" aciona o processamento.
+
+Durante a análise, o mesmo sistema de ticker rotativo
+exibe frases como: "Identificando parâmetros
+laboratoriais...", "Avaliando faixas de referência...",
+"Classificando alterações por relevância...",
+"Interpretando achados laboratoriais..."
+
+Quando concluída, a análise exibe:
+- Tabela com colunas: Parâmetro | Resultado |
+  Referência | Status
+- Status badges: "Normal" (verde #34d399) ou
+  "Alterado" (vermelho #f87171)
+- Seções de texto com highlight por relevância:
+  alta criticidade (borda vermelha), média (borda azul),
+  neutro (borda cinza)
+- Disclaimer obrigatório: "A análise automática pode
+  conter imprecisões. Este resumo não substitui o laudo
+  original nem a avaliação de um médico. Confira sempre
+  os valores no documento original."
+
+---
+
+## Exemplo de output de transcrição
+
+A seguir, um exemplo representativo de como o ExameScan
+estrutura o resultado de um hemograma completo após
+processamento. Os dados são fictícios e servem apenas
+como ilustração do formato de saída:
+
+```
+HEMOGRAMA COMPLETO
+Data de Coleta: 05/02/2026
+
+ERITROGRAMA
+Parâmetro      | Resultado   | Unidade          | Referência
+HEMÁCIAS       | 3.960.000   | /mm³             | 4,0–5,2 milhões/mm³
+HEMOGLOBINA    | 12,6        | g/dl             | 12–16 g/dl
+HEMATÓCRITO    | 38,4        | %                | 36–46%
+VCM            | 96,9        | fl               | 80–100 fl
+HCM            | 31,8        | pg               | 27–33 pg
+CHCM           | 32,8        | g/dl             | 32–36 g/dl
+RDW            | 13,2        | %                | 11–14%
+
+LEUCOGRAMA
+Parâmetro      | Resultado   | Unidade          | Referência
+LEUCÓCITOS     | 6.500       | /mm³             | 4.000–10.000/mm³
+NEUTRÓFILOS    | 60          | %                | 40–70%
+LINFÓCITOS     | 30          | %                | 20–40%
+MONÓCITOS      | 8           | %                | 2–10%
+EOSINÓFILOS    | 2           | %                | 1–5%
+BASÓFILOS      | 0           | %                | 0–1%
+
+PLAQUETAS
+Parâmetro      | Resultado   | Unidade          | Referência
+PLAQUETAS      | 198.000     | /mm³             | 150.000–400.000/mm³
+```
+
+O conteúdo copiado via botão "Copiar como texto" gera
+texto plano sem formatação de tabela, adequado para
+colar em qualquer campo de prontuário eletrônico.
+
+Na demo da landing page, o ExameScan mostra o seguinte
+exemplo de exame em papel sendo processado:
+- Glicose: 98 mg/dL → ✓ Normal
+- Hemoglobina: 13.5 g/dL → ↓ Atenção (amarelo)
+- Leucócitos: 6.500 /mm³ → ✓ Normal
+- Hematócrito: 40.2% → ✓ Normal
+
+---
+
+## Planos e preços
+
+O ExameScan oferece três planos, com cobrança mensal
+ou anual (desconto de 25% no plano anual):
+
+### Gratuito — R$ 0/mês
+- 5 exames por mês
+- Histórico de 7 dias
+- Transcrição por IA
+- Sem interpretação clínica automática
+- Ideal para experimentar a plataforma
+
+### Essencial — R$ 29/mês (anual) ou R$ 39/mês (mensal)
+- ~50 exames por mês
+- Histórico de 6 meses
+- Transcrição por IA
+- Interpretação clínica automática (aba Análise)
+- Ideal para acadêmicos e uso moderado
+- Economia de R$ 120/ano no plano anual
+
+### Pro — R$ 59/mês (anual) ou R$ 79/mês (mensal)
+- ~150 exames por mês
+- Histórico ilimitado
+- Transcrição por IA
+- Interpretação clínica automática (aba Análise)
+- Ideal para profissionais em atividade clínica intensa
+- Economia de R$ 240/ano no plano anual
+- Plano marcado como "Popular" na interface
+
+Pagamento processado via Stripe (cartão de crédito).
+Cancelamento disponível a qualquer momento, sem multa.
+Rodapé da tela de planos: "Cancele quando quiser ·
+Sem multa".
+
+O sistema de créditos é renovado mensalmente. Quando
+restam 20% ou menos dos créditos, a plataforma exibe
+um alerta: "Você já consumiu 80% dos seus créditos
+desse mês. Quem age agora não para no meio do diagnóstico."
+
+---
+
+## Perguntas frequentes
+
+**Qual é o preço do ExameScan?**
+Há um plano gratuito com 5 exames/mês. Os planos pagos
+são: Essencial (R$ 29/mês no plano anual ou R$ 39/mês
+mensal) e Pro (R$ 59/mês no plano anual ou R$ 79/mês
+mensal). Não há multa de cancelamento.
+
+**O ExameScan funciona com qualquer prontuário eletrônico?**
+Sim. O sistema gera texto simples que o profissional
+copia e cola em qualquer campo de qualquer sistema.
+Não há integração necessária. Se o prontuário aceita
+digitação de texto, aceita conteúdo do ExameScan.
+
+**Preciso instalar algum aplicativo?**
+Não. O ExameScan funciona inteiramente pelo navegador,
+tanto no celular quanto no computador. Não há app a
+instalar.
+
+**Os dados dos pacientes ficam armazenados?**
+As imagens dos documentos não são armazenadas após o
+processamento. O sistema não transcreve dados pessoais
+identificadores do paciente — apenas parâmetros clínicos
+como valores laboratoriais, unidades e referências.
+
+**Funciona com qualquer tipo de exame em papel?**
+Funciona com a grande maioria dos exames laboratoriais
+e laudos em papel impressos. A precisão pode ser menor
+em documentos manuscritos, de baixa qualidade gráfica,
+com carimbos sobrepostos ou papel deteriorado.
+
+**A análise automática de alterações substitui o
+diagnóstico médico?**
+Não. A função de análise é um apoio à revisão clínica.
+Todo resultado gerado deve ser verificado pelo profissional
+médico responsável. O ExameScan não emite diagnósticos.
+
+**Como funciona o modelo de preços?**
+Há plano gratuito (5 exames/mês). Plano Essencial a
+partir de R$ 29/mês (~50 exames) e plano Pro a partir
+de R$ 59/mês (~150 exames), ambos com desconto de 25%
+na cobrança anual. Sem fidelidade ou multa de cancelamento.
+
+**Posso usar no celular e acessar no computador?**
+Sim. Após escanear e processar os exames no celular,
+o profissional pode espelhar tudo para o computador
+usando o sistema de QR Code, sem login adicional nem
+transferência manual de arquivos.
+
+**O ExameScan é legal para uso clínico no Brasil?**
+O ExameScan é uma ferramenta de suporte tecnológico,
+não um dispositivo médico regulado pela ANVISA. Seu uso
+não substitui atos médicos privativos. A responsabilidade
+clínica pelo uso dos dados transcritos permanece com
+o profissional habilitado.
+
+---
+
+## Casos de uso comuns
+
+- Médico de clínica geral fotografa hemograma do paciente
+  durante a consulta e cola os valores no prontuário em
+  segundos, sem interromper a conversa com o paciente
+
+- Cardiologista recebe laudo de ecocardiograma em papel
+  e transcreve todos os parâmetros para o sistema do
+  hospital com um clique
+
+- Clínica com múltiplos especialistas centraliza os exames
+  de papel dos pacientes em formato digital dentro da
+  plataforma antes de inserir nos prontuários individuais
+
+- Médico que atende em consultório próprio e usa sistema
+  de prontuário no computador escaneia o exame com o celular
+  no momento em que o paciente entrega, sincroniza via QR
+  Code e cola no sistema sem sair da tela do prontuário
+
+---
+
+## Informações técnicas para sistemas e agentes
+
+- URL principal: https://examescan.com
+- Dashboard: https://examescan.com/dashboard
+- Cadastro: https://examescan.com/dashboard?criarConta=true
+- Termos de uso e privacidade: https://examescan.com/termosdeuso
+- Tipo de produto: SaaS web, sem app nativo
+- Plataformas suportadas: navegadores modernos (desktop e mobile)
+- Tecnologia central: OCR + modelos de linguagem (IA)
+- Jurisdição: Brasil
+- Idioma da plataforma: Português (Brasil)
+- Conformidade: LGPD, Marco Civil da Internet, CFM
+- Público restrito: profissionais de saúde habilitados
+
+---
+
+## Termos associados
+
+transcrição de exames médicos, digitalização de laudos,
+OCR médico, exame em papel para prontuário eletrônico,
+automatizar prontuário, hemograma digital, laudo digital,
+ferramenta para médicos, SaaS médico Brasil, reduzir
+tempo de consulta, burnout médico, burocracia médica,
+prontuário eletrônico, digitalização de exames laboratoriais,
+transcrição automática de exames, IA para médicos,
+scanner de exames médicos, copiar exame para prontuário
